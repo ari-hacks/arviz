@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArviZ: Exploratory analysis of Bayesian models &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ArviZ Quickstart" href="notebooks/Introduction.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"><span><img src="_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="examples/index.html">Gallery</a></li>
+                <li><a href="notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="notebooks/Numba.html">Numba</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="usage.html">Usage</a></li>
+                <li><a href="about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-exploratory-analysis-of-bayesian-models">
+<h1>ArviZ: Exploratory analysis of Bayesian models<a class="headerlink" href="#arviz-exploratory-analysis-of-bayesian-models" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://dev.azure.com/ArviZ/ArviZ/_build/latest?definitionId=1&amp;branchName=master"><img alt="Build Status" src="https://dev.azure.com/ArviZ/ArviZ/_apis/build/status/arviz-devs.arviz?branchName=master" /></a>
+<a class="reference external" href="https://codecov.io/gh/arviz-devs/arviz"><img alt="Coverage Status" src="https://codecov.io/gh/arviz-devs/arviz/branch/master/graph/badge.svg" /></a>
+<a class="reference external" href="https://doi.org/10.5281/zenodo.2540944"><img alt="Zenodo" src="https://zenodo.org/badge/DOI/10.5281/zenodo.2540944.svg" /></a>
+<a class="reference external" href="https://www.numfocus.org/"><img alt="NumFocus" src="https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&amp;colorA=E1523D&amp;colorB=007D8A" /></a></p>
+<div style="clear: both"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6"><p>ArviZ is a Python package for exploratory analysis of Bayesian models. Includes functions for posterior analysis, data storage, sample diagnostics, model checking, and comparison.</p>
+<p>The goal is to provide backend-agnostic tools for diagnostics and visualizations of Bayesian inference in Python,
+by first converting inference data into <a class="reference external" href="https://xarray.pydata.org/en/stable/">xarray</a> objects.
+See <a class="reference internal" href="notebooks/XarrayforArviZ.html"><span class="doc">here</span></a> for more on xarray and ArviZ usage
+and <a class="reference internal" href="schema/schema.html"><span class="doc">here</span></a> for more on <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> structure
+and specification.</p>
+<p>Installation using pip</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install arviz
+</pre></div>
+</div>
+<p>Alternatively you can use conda-forge</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge arviz
+</pre></div>
+</div>
+<p>For the latest (unstable) version</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install git+https://github.com/arviz-devs/arviz
+</pre></div>
+</div>
+<p>ArviZ’s functions work with NumPy arrays, dictionaries of arrays, xarray datasets, and has built-in support for <a class="reference external" href="https://docs.pymc.io/">PyMC3</a>,
+<a class="reference external" href="https://pystan.readthedocs.io/en/latest/">PyStan</a>, <a class="reference external" href="https://github.com/stan-dev/cmdstanpy">CmdStanPy</a>,
+<a class="reference external" href="http://pyro.ai/">Pyro</a>, <a class="reference external" href="http://num.pyro.ai/">NumPyro</a>,
+<a class="reference external" href="https://emcee.readthedocs.io/en/stable/">emcee</a>, and
+<a class="reference external" href="https://www.tensorflow.org/probability">TensorFlow Probability</a> objects. Support for PyMC4, Edward2, and Edward are on the roadmap.</p>
+<p>A Julia wrapper, <a class="reference external" href="https://arviz-devs.github.io/ArviZ.jl/stable/">ArviZ.jl</a> is
+also available. It provides built-in support for
+<a class="reference external" href="https://turing.ml/dev/">Turing.jl</a>, <a class="reference external" href="https://github.com/StanJulia/CmdStan.jl">CmdStan.jl</a>, <a class="reference external" href="https://github.com/StanJulia/StanSample.jl">StanSample.jl</a> and <a class="reference external" href="https://github.com/StanJulia/Stan.jl">Stan.jl</a>.</p>
+<p>Contributions and issue reports are very welcome at
+<a class="reference external" href="https://github.com/arviz-devs/arviz">the github repository</a>.</p>
+<p>If you use ArviZ and want to cite it please use <a class="reference external" href="https://doi.org/10.21105/joss.01143"><img alt="JOSS" src="http://joss.theoj.org/papers/10.21105/joss.01143/status.svg" /></a></p>
+<p>Here is the citation in BibTeX format</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>@article<span class="o">{</span>arviz_2019,
+        <span class="nv">title</span> <span class="o">=</span> <span class="o">{{</span>ArviZ<span class="o">}</span> a unified library <span class="k">for</span> exploratory analysis of <span class="o">{</span>Bayesian<span class="o">}</span> models in <span class="o">{</span>Python<span class="o">}}</span>,
+        <span class="nv">author</span> <span class="o">=</span> <span class="o">{</span>Kumar, Ravin and Carroll, Colin and Hartikainen, Ari and Martin, Osvaldo A.<span class="o">}</span>,
+        <span class="nv">journal</span> <span class="o">=</span> <span class="o">{</span>The Journal of Open Source Software<span class="o">}</span>,
+        <span class="nv">year</span> <span class="o">=</span> <span class="o">{</span><span class="m">2019</span><span class="o">}</span>,
+        <span class="nv">doi</span> <span class="o">=</span> <span class="o">{</span><span class="m">10</span>.21105/joss.01143<span class="o">}</span>,
+        <span class="nv">url</span> <span class="o">=</span> <span class="o">{</span>http://joss.theoj.org/papers/10.21105/joss.01143<span class="o">}</span>,
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/Introduction.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Example Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/Numba.html">Numba</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/XarrayforArviZ.html">Introduction to xarray, InferenceData, and NetCDF for ArviZ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/XarrayforArviZ.html#Additional-Reading">Additional Reading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema/schema.html">InferenceData schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+</ul>
+</div>
+</div>
+<div class="col-md-6">
+    <div class="container-fluid hidden-xs hidden-sm">
+        <a href="examples/matplotlib/mpl_plot_pair.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_pair_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_forest.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_forest_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_density.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_density_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_energy.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_energy_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_posterior.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_posterior_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_kde_2d.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_kde_2d_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_forest_ridge.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_forest_ridge_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_parallel.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_parallel_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_trace.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_trace_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_joint.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_joint_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_ppc.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_ppc_thumb.png">
+        </div>
+        </a>
+        <a href="examples/matplotlib/mpl_plot_autocorr.html">
+        <div class="col-md-3 thumbnail">
+            <img src="_static/mpl_plot_autocorr_thumb.png">
+        </div>
+        </a>
+    </div>
+</div>
+
+</div>
+</div>
+</div></div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/index.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+
+.. _bokeh_plot_hdi:
+
+
+Plot HDI
+========
+
+
+
+.. bokeh-plot:: /home/vsts/work/1/s/doc/examples/bokeh/bokeh_plot_hdi.py
+    :source-position: none
+
+**Python source code:** :download:`[download source: bokeh_plot_hdi.py]<bokeh_plot_hdi.py>`
+
+**API documentation:** `plot_hdi <../../generated/arviz.plot_hdi>`_
+
+.. literalinclude:: bokeh_plot_hdi.py
+    :lines: 7-

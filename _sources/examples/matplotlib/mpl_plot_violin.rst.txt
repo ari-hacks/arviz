@@ -1,0 +1,17 @@
+
+.. _mpl_plot_violin:
+
+
+Violinplot
+==========
+
+
+
+.. image:: _images/mpl_plot_violin.png
+
+**Python source code:** :download:`[download source: mpl_plot_violin.py]<mpl_plot_violin.py>`
+
+**API documentation:** `plot_violin <../../generated/arviz.plot_violin>`_
+
+.. literalinclude:: mpl_plot_violin.py
+    :lines: 7-

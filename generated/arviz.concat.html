@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.concat &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="arviz.Numba" href="arviz.Numba.html" />
+    <link rel="prev" title="arviz.from_pyjags" href="arviz.from_pyjags.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-concat">
+<h1>arviz.concat<a class="headerlink" href="#arviz-concat" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="arviz.concat">
+<code class="sig-prename descclassname">arviz.</code><code class="sig-name descname">concat</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="n">dim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reset_dim</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/arviz/data/inference_data.html#concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#arviz.concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate InferenceData objects.</p>
+<p>Concatenates over <cite>group</cite>, <cite>chain</cite> or <cite>draw</cite>.
+By default concatenates over unique groups.
+To concatenate over <cite>chain</cite> or <cite>draw</cite> function
+needs identical groups and variables.</p>
+<p>The <cite>variables</cite> in the <cite>data</cite> -group are merged if <cite>dim</cite> are not found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>*args</strong><span class="classifier">InferenceData</span></dt><dd><p>Variable length InferenceData list or
+Sequence of InferenceData.</p>
+</dd>
+<dt><strong>dim</strong><span class="classifier">str, optional</span></dt><dd><p>If defined, concatenated over the defined dimension.
+Dimension which is concatenated. If None, concatenates over
+unique groups.</p>
+</dd>
+<dt><strong>copy</strong><span class="classifier">bool</span></dt><dd><p>If True, groups are copied to the new InferenceData object.
+Used only if <cite>dim</cite> is None.</p>
+</dd>
+<dt><strong>inplace</strong><span class="classifier">bool</span></dt><dd><p>If True, merge args to first object.</p>
+</dd>
+<dt><strong>reset_dim</strong><span class="classifier">bool</span></dt><dd><p>Valid only if dim is not None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>InferenceData</dt><dd><p>A new InferenceData object by default.
+When <cite>inplace==True</cite> merge args to first arg and return <cite>None</cite></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">concat</span></code> method to concatenate InferenceData objects. This will concatenates over
+unique groups by default. We first create an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="gp">   ...: </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">   ...: </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">   ...: </span>    <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span>
+<span class="gp">   ...: </span>    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+<span class="gp">   ...: </span><span class="p">}</span>
+<span class="gp">   ...: </span><span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;a_dim&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]}</span>
+<span class="gp">   ...: </span><span class="n">dataA</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a_dim&quot;</span><span class="p">]})</span>
+<span class="gp">   ...: </span><span class="n">dataA</span>
+<span class="gp">   ...: </span>
+<span class="gh">Out[1]: </span><span class="go"></span>
+<span class="go">Inference data with groups:</span>
+<span class="go">	&gt; posterior</span>
+</pre></div>
+</div>
+<p>We have created an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object with default group ‘posterior’. Now, we will
+create another <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [2]: </span><span class="n">dataB</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">prior</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a_dim&quot;</span><span class="p">]})</span>
+<span class="gp">   ...: </span><span class="n">dataB</span>
+<span class="gp">   ...: </span>
+<span class="gh">Out[2]: </span><span class="go"></span>
+<span class="go">Inference data with groups:</span>
+<span class="go">	&gt; prior</span>
+</pre></div>
+</div>
+<p>We have created another <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object with group ‘prior’. Now, we will concatenate
+these two <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> objects:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [3]: </span><span class="n">az</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataA</span><span class="p">,</span> <span class="n">dataB</span><span class="p">)</span>
+<span class="gh">Out[3]: </span><span class="go"></span>
+<span class="go">Inference data with groups:</span>
+<span class="go">	&gt; posterior</span>
+<span class="go">	&gt; prior</span>
+</pre></div>
+</div>
+<p>Now, we will concatenate over chain (or draw). It requires identical groups and variables.
+Here we are concatenating two identical <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> objects over dimension chain:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [4]: </span><span class="n">az</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataA</span><span class="p">,</span> <span class="n">dataA</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">)</span>
+<span class="gh">Out[4]: </span><span class="go"></span>
+<span class="go">Inference data with groups:</span>
+<span class="go">	&gt; posterior</span>
+</pre></div>
+</div>
+<p>It will create an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> with the original group ‘posterior’. In similar way,
+we can also concatenate over draws.</p>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/generated/arviz.concat.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

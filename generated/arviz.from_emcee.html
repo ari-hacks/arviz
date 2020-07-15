@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.from_emcee &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="arviz.from_pymc3" href="arviz.from_pymc3.html" />
+    <link rel="prev" title="arviz.from_dict" href="arviz.from_dict.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-from-emcee">
+<h1>arviz.from_emcee<a class="headerlink" href="#arviz-from-emcee" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="arviz.from_emcee">
+<code class="sig-prename descclassname">arviz.</code><code class="sig-name descname">from_emcee</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">var_names</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">slices</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">arg_names</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">arg_groups</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blob_names</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blob_groups</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dims</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/arviz/data/io_emcee.html#from_emcee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#arviz.from_emcee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert emcee data into an InferenceData object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sampler</strong><span class="classifier">emcee.EnsembleSampler</span></dt><dd><p>Fitted sampler from emcee.</p>
+</dd>
+<dt><strong>var_names</strong><span class="classifier">list[str] (Optional)</span></dt><dd><p>A list of names for variables in the sampler</p>
+</dd>
+<dt><strong>slices</strong><span class="classifier">list[array-like] (Optional)</span></dt><dd><p>A list containing the indexes of each variable. Should only be used
+for multidimensional variables.</p>
+</dd>
+<dt><strong>arg_names</strong><span class="classifier">list[str] (Optional)</span></dt><dd><p>A list of names for args in the sampler</p>
+</dd>
+<dt><strong>arg_groups</strong><span class="classifier">list of str, optional</span></dt><dd><p>A list of the group names (either <code class="docutils literal notranslate"><span class="pre">observed_data</span></code> or <code class="docutils literal notranslate"><span class="pre">constant_data</span></code>) where
+args in the sampler are stored. If None, all args will be stored in observed
+data group.</p>
+</dd>
+<dt><strong>blob_names</strong><span class="classifier">list[str] (Optional)</span></dt><dd><p>A list of names for blobs in the sampler. When None,
+blobs are omitted, independently of them being present
+in the sampler or not.</p>
+</dd>
+<dt><strong>blob_groups</strong><span class="classifier">list[str] (Optional)</span></dt><dd><p>A list of the groups where blob_names variables
+should be assigned respectively. If blob_names!=None
+and blob_groups is None, all variables are assigned
+to log_likelihood group</p>
+</dd>
+<dt><strong>coords</strong><span class="classifier">dict[str] -&gt; list[str] (Optional)</span></dt><dd><p>Map of dimensions to coordinates</p>
+</dd>
+<dt><strong>dims</strong><span class="classifier">dict[str] -&gt; list[str] (Optional)</span></dt><dd><p>Map variable names to their coordinates</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>InferenceData</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Passing an <code class="docutils literal notranslate"><span class="pre">emcee.EnsembleSampler</span></code> object to <code class="docutils literal notranslate"><span class="pre">az.from_emcee</span></code> converts it
+to an InferenceData object. Start defining the model and running the sampler:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">emcee</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">J</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">28.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">15.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">16.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">log_prior_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mu</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># Half-cauchy prior, hwhm=25</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">tau</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">prior_tau</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tau</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">25</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">prior_mu</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">mu</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>  <span class="c1"># normal prior, loc=0, scale=10</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">prior_eta</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># normal prior, loc=0, scale=1</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">prior_mu</span> <span class="o">+</span> <span class="n">prior_tau</span> <span class="o">+</span> <span class="n">prior_eta</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">log_likelihood_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mu</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="o">-</span><span class="p">((</span><span class="n">mu</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">eta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">s</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">lnprob_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">log_prior_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">like_vect</span> <span class="o">=</span> <span class="n">log_likelihood_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">like</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">like_vect</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">like</span> <span class="o">+</span> <span class="n">prior</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">draws</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">700</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ndim</span> <span class="o">=</span> <span class="n">J</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">ndim</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">nwalkers</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">ndim</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">lnprob_8school</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">y_obs</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">draws</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>And convert the sampler to an InferenceData object. As emcee does not store variable
+names, they must be passed to the converter in order to have them. It can also be useful
+to perform a burn in cut to the MCMC samples (see <a class="reference internal" href="arviz.InferenceData.sel.html#arviz.InferenceData.sel" title="arviz.InferenceData.sel"><code class="xref py py-meth docutils literal notranslate"><span class="pre">arviz.InferenceData.sel()</span></code></a> for
+more details):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">,</span> <span class="s1">&#39;tau&#39;</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="s1">&#39;eta</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">J</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emcee_data</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_emcee</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">)</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">draw</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>From an InferenceData object, ArviZ’s native data structure, the posterior plot
+of the first 3 variables can be done in one line:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">emcee_data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This way of calling <code class="docutils literal notranslate"><span class="pre">from_emcee</span></code> stores each <cite>eta</cite> as a different variable, called
+<cite>etai</cite>, however, they are in fact different dimensions of the same variable. This can
+be seen in the likelihood and prior functions:
+<code class="docutils literal notranslate"><span class="pre">mu,</span> <span class="pre">tau,</span> <span class="pre">eta</span> <span class="pre">=</span> <span class="pre">theta[0],</span> <span class="pre">theta[1],</span> <span class="pre">theta[2:]</span></code>. ArviZ has support for
+multidimensional variables, and there is a way to tell it how to split the variables
+like it was done in the likelihood and prior functions:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">emcee_data</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_emcee</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">slices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>After checking the default variable names, the trace of one dimension of eta can be
+plotted using ArviZ syntax:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">emcee_data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;var_2&quot;</span><span class="p">],</span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;var_2_dim_0&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Emcee does not store per-draw sample stats, however, it has a functionality called
+blobs that allows to store any variable on a per-draw basis. It can be used
+to store some sample_stats or even posterior_predictive data. The first step is to
+modify the probability function to use the <code class="docutils literal notranslate"><span class="pre">blobs</span></code> and store the log_likelihood,
+then rerun the sampler using the new function:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">lnprob_8school_blobs</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">log_prior_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">like_vect</span> <span class="o">=</span> <span class="n">log_likelihood_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">like</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">like_vect</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">like</span> <span class="o">+</span> <span class="n">prior</span><span class="p">,</span> <span class="n">like_vect</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler_blobs</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">nwalkers</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">ndim</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">lnprob_8school_blobs</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">y_obs</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler_blobs</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">draws</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Here, the argument blob_names is added with respect to the previous examples. As the
+group is not specified, it will go to sample_stats.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;school&quot;</span><span class="p">],</span> <span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;school&quot;</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_emcee</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">sampler_blobs</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">slices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="kc">None</span><span class="p">)],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">blob_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;school&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or in the case of even more complicated blobs, each corresponding to a different
+group of the InferenceData object. Moreover, the <code class="docutils literal notranslate"><span class="pre">EnsembleSampler</span></code> <code class="docutils literal notranslate"><span class="pre">args</span></code> argument
+can be stored in observed or constant data groups if desired:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">lnprob_8school_blobs</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mu</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">log_prior_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">like_vect</span> <span class="o">=</span> <span class="n">log_likelihood_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">like</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">like_vect</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">like</span> <span class="o">+</span> <span class="n">prior</span><span class="p">,</span> <span class="p">(</span><span class="n">like_vect</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">((</span><span class="n">mu</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">eta</span><span class="p">),</span> <span class="n">sigma</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler_blobs</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">nwalkers</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">ndim</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">lnprob_8school_blobs</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">y_obs</span><span class="p">,</span> <span class="n">sigma</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler_blobs</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">draws</span><span class="p">);</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;school&quot;</span><span class="p">],</span> <span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;school&quot;</span><span class="p">],</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;school&quot;</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_emcee</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">sampler_blobs</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">slices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="kc">None</span><span class="p">)],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">arg_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">,</span><span class="s2">&quot;sigma&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">arg_groups</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;observed_data&quot;</span><span class="p">,</span> <span class="s2">&quot;constant_data&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">blob_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">blob_groups</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">,</span> <span class="s2">&quot;posterior_predictive&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;school&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This last version, which contains both observed data and posterior predictive can be
+used to plot posterior predictive checks:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">num_pp_samples</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/generated/arviz.from_emcee.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+
+.. _mpl_plot_pair_hex:
+
+
+Hexbin PairPlot
+===============
+
+
+
+.. image:: _images/mpl_plot_pair_hex.png
+
+**Python source code:** :download:`[download source: mpl_plot_pair_hex.py]<mpl_plot_pair_hex.py>`
+
+**API documentation:** `plot_pair <../../generated/arviz.plot_pair>`_
+
+.. literalinclude:: mpl_plot_pair_hex.py
+    :lines: 7-

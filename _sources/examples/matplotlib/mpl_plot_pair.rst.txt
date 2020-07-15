@@ -1,0 +1,17 @@
+
+.. _mpl_plot_pair:
+
+
+Pair Plot
+=========
+
+
+
+.. image:: _images/mpl_plot_pair.png
+
+**Python source code:** :download:`[download source: mpl_plot_pair.py]<mpl_plot_pair.py>`
+
+**API documentation:** `plot_pair <../../generated/arviz.plot_pair>`_
+
+.. literalinclude:: mpl_plot_pair.py
+    :lines: 7-

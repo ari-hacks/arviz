@@ -1,0 +1,6 @@
+arviz.autocorr
+==============
+
+.. currentmodule:: arviz
+
+.. autofunction:: autocorr

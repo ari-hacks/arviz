@@ -1,0 +1,17 @@
+
+.. _mpl_plot_mcse:
+
+
+Quantile Monte Carlo Standard Error Plot
+========================================
+
+
+
+.. image:: _images/mpl_plot_mcse.png
+
+**Python source code:** :download:`[download source: mpl_plot_mcse.py]<mpl_plot_mcse.py>`
+
+**API documentation:** `plot_mcse <../../generated/arviz.plot_mcse>`_
+
+.. literalinclude:: mpl_plot_mcse.py
+    :lines: 7-

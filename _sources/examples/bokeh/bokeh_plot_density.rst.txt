@@ -1,0 +1,18 @@
+
+.. _bokeh_plot_density:
+
+
+Density Plot
+============
+
+
+
+.. bokeh-plot:: /home/vsts/work/1/s/doc/examples/bokeh/bokeh_plot_density.py
+    :source-position: none
+
+**Python source code:** :download:`[download source: bokeh_plot_density.py]<bokeh_plot_density.py>`
+
+**API documentation:** `plot_density <../../generated/arviz.plot_density>`_
+
+.. literalinclude:: bokeh_plot_density.py
+    :lines: 7-

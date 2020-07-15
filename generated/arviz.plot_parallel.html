@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.plot_parallel &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="arviz.plot_posterior" href="arviz.plot_posterior.html" />
+    <link rel="prev" title="arviz.plot_pair" href="arviz.plot_pair.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-plot-parallel">
+<h1>arviz.plot_parallel<a class="headerlink" href="#arviz-plot-parallel" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="arviz.plot_parallel">
+<code class="sig-prename descclassname">arviz.</code><code class="sig-name descname">plot_parallel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">var_names</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_vars</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">textsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">legend</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">colornd</span><span class="o">=</span><span class="default_value">'k'</span></em>, <em class="sig-param"><span class="n">colord</span><span class="o">=</span><span class="default_value">'C1'</span></em>, <em class="sig-param"><span class="n">shadend</span><span class="o">=</span><span class="default_value">0.025</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">norm_method</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend_config</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/arviz/plots/parallelplot.html#plot_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#arviz.plot_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot parallel coordinates plot showing posterior points with and without divergences.</p>
+<p>Described by <a class="reference external" href="https://arxiv.org/abs/1709.01449">https://arxiv.org/abs/1709.01449</a>, suggested by Ari Hartikainen</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data: obj</strong></dt><dd><p>Any object that can be converted to an az.InferenceData object
+Refer to documentation of az.convert_to_dataset for details</p>
+</dd>
+<dt><strong>var_names: list of variable names</strong></dt><dd><p>Variables to be plotted, if <cite>None</cite> all variable are plotted. Can be used to change the order
+of the plotted variables. Prefix the variables by <cite>~</cite> when you want to exclude
+them from the plot.</p>
+</dd>
+<dt><strong>filter_vars: {None, “like”, “regex”}, optional, default=None</strong></dt><dd><p>If <cite>None</cite> (default), interpret var_names as the real variables names. If “like”,
+interpret var_names as substrings of the real variables names. If “regex”,
+interpret var_names as regular expressions on the real variables names. A la
+<cite>pandas.filter</cite>.</p>
+</dd>
+<dt><strong>coords: mapping, optional</strong></dt><dd><p>Coordinates of var_names to be plotted. Passed to <cite>Dataset.sel</cite></p>
+</dd>
+<dt><strong>figsize: tuple</strong></dt><dd><p>Figure size. If None it will be defined automatically.</p>
+</dd>
+<dt><strong>textsize: float</strong></dt><dd><p>Text size scaling factor for labels, titles and lines. If None it will be autoscaled based
+on figsize.</p>
+</dd>
+<dt><strong>legend: bool</strong></dt><dd><p>Flag for plotting legend (defaults to True)</p>
+</dd>
+<dt><strong>colornd: valid matplotlib color</strong></dt><dd><p>color for non-divergent points. Defaults to ‘k’</p>
+</dd>
+<dt><strong>colord: valid matplotlib color</strong></dt><dd><p>color for divergent points. Defaults to ‘C1’</p>
+</dd>
+<dt><strong>shadend: float</strong></dt><dd><p>Alpha blending value for non-divergent points, between 0 (invisible) and 1 (opaque).
+Defaults to .025</p>
+</dd>
+<dt><strong>ax: axes, optional</strong></dt><dd><p>Matplotlib axes or bokeh figures.</p>
+</dd>
+<dt><strong>norm_method: str</strong></dt><dd><p>Method for normalizing the data. Methods include normal, minmax and rank.
+Defaults to none.</p>
+</dd>
+<dt><strong>backend: str, optional</strong></dt><dd><p>Select plotting backend {“matplotlib”,”bokeh”}. Default “matplotlib”.</p>
+</dd>
+<dt><strong>backend_config: dict, optional</strong></dt><dd><p>Currently specifies the bounds to use for bokeh axes. Defaults to value set in rcParams.</p>
+</dd>
+<dt><strong>backend_kwargs: bool, optional</strong></dt><dd><p>These are kwargs specific to the backend being used. For additional documentation
+check the plotting method of the backend.</p>
+</dd>
+<dt><strong>show: bool, optional</strong></dt><dd><p>Call backend show function.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>axes: matplotlib axes or bokeh figures</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot default parallel plot</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">load_arviz_data</span><span class="p">(</span><span class="s1">&#39;centered_eight&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_parallel</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_parallel-1.png" src="../_images/arviz-plot_parallel-1.png" />
+</div>
+<p>Plot parallel plot with normalization</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_parallel</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">],</span> <span class="n">norm_method</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_parallel-2.png" src="../_images/arviz-plot_parallel-2.png" />
+</div>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/generated/arviz.plot_parallel.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.plots.jointplot &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.plots.jointplot</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Joint scatter plot of two variables.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">convert_to_dataset</span>
+<span class="kn">from</span> <span class="nn">.plot_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_scale_fig_size</span><span class="p">,</span>
+    <span class="n">xarray_var_iter</span><span class="p">,</span>
+    <span class="n">get_plotting_function</span><span class="p">,</span>
+    <span class="n">matplotlib_kwarg_dealiaser</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..rcparams</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_var_names</span><span class="p">,</span> <span class="n">get_coords</span>
+
+
+<div class="viewcode-block" id="plot_joint"><a class="viewcode-back" href="../../../generated/arviz.plot_joint.html#arviz.plot_joint">[docs]</a><span class="k">def</span> <span class="nf">plot_joint</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior&quot;</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">filter_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">textsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;scatter&quot;</span><span class="p">,</span>
+    <span class="n">gridsize</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">contour</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fill_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">joint_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">marginal_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a scatter or hexbin of two variables with their respective marginals distributions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: obj</span>
+<span class="sd">        Any object that can be converted to an az.InferenceData object</span>
+<span class="sd">        Refer to documentation of az.convert_to_dataset for details</span>
+<span class="sd">    group: str, optional</span>
+<span class="sd">        Specifies which InferenceData group should be plotted. Defaults to ‘posterior’.</span>
+<span class="sd">    var_names: str or iterable of str</span>
+<span class="sd">        Variables to be plotted. Iterable of two variables or one variable (with subset</span>
+<span class="sd">        having exactly 2 dimensions) are required. Prefix the variables by `~` when you</span>
+<span class="sd">        want to exclude them from the plot.</span>
+<span class="sd">    filter_vars: {None, &quot;like&quot;, &quot;regex&quot;}, optional, default=None</span>
+<span class="sd">        If `None` (default), interpret var_names as the real variables names. If &quot;like&quot;,</span>
+<span class="sd">        interpret var_names as substrings of the real variables names. If &quot;regex&quot;,</span>
+<span class="sd">        interpret var_names as regular expressions on the real variables names. A la</span>
+<span class="sd">        `pandas.filter`.</span>
+<span class="sd">    transform: callable</span>
+<span class="sd">        Function to transform data (defaults to None i.e. the identity function)</span>
+<span class="sd">    coords: mapping, optional</span>
+<span class="sd">        Coordinates of var_names to be plotted. Passed to `Dataset.sel`</span>
+<span class="sd">    figsize: tuple</span>
+<span class="sd">        Figure size. If None it will be defined automatically.</span>
+<span class="sd">    textsize: float</span>
+<span class="sd">        Text size scaling factor for labels, titles and lines. If None it will be autoscaled based</span>
+<span class="sd">        on figsize.</span>
+<span class="sd">    kind: str</span>
+<span class="sd">        Type of plot to display (scatter, kde or hexbin)</span>
+<span class="sd">    gridsize: int or (int, int), optional.</span>
+<span class="sd">        The number of hexagons in the x-direction. Ignored when hexbin is False. See `plt.hexbin`</span>
+<span class="sd">        for details</span>
+<span class="sd">    contour: bool</span>
+<span class="sd">        If True plot the 2D KDE using contours, otherwise plot a smooth 2D KDE. Defaults to True.</span>
+<span class="sd">    fill_last: bool</span>
+<span class="sd">        If True fill the last contour of the 2D KDE plot. Defaults to True.</span>
+<span class="sd">    joint_kwargs: dicts, optional</span>
+<span class="sd">        Additional keywords modifying the join distribution (central subplot)</span>
+<span class="sd">    marginal_kwargs: dicts, optional</span>
+<span class="sd">        Additional keywords modifying the marginals distributions (top and right subplot)</span>
+<span class="sd">    ax: tuple of axes, optional</span>
+<span class="sd">        Tuple containing (ax_joint, ax_hist_x, ax_hist_y). If None, a new figure and axes</span>
+<span class="sd">        will be created. Matplotlib axes or bokeh figures.</span>
+<span class="sd">    backend: str, optional</span>
+<span class="sd">        Select plotting backend {&quot;matplotlib&quot;,&quot;bokeh&quot;}. Default &quot;matplotlib&quot;.</span>
+<span class="sd">    backend_kwargs: bool, optional</span>
+<span class="sd">        These are kwargs specific to the backend being used. For additional documentation</span>
+<span class="sd">        check the plotting method of the backend.</span>
+<span class="sd">    show: bool, optional</span>
+<span class="sd">        Call backend show function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    axes: matplotlib axes or bokeh figures</span>
+<span class="sd">        ax_joint: joint (central) distribution</span>
+<span class="sd">        ax_hist_x: x (top) distribution</span>
+<span class="sd">        ax_hist_y: y (right) distribution</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Scatter Joint plot</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; import arviz as az</span>
+<span class="sd">        &gt;&gt;&gt; data = az.load_arviz_data(&#39;non_centered_eight&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; az.plot_joint(data,</span>
+<span class="sd">        &gt;&gt;&gt;             var_names=[&#39;theta&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;             coords={&#39;school&#39;: [&#39;Choate&#39;, &#39;Phillips Andover&#39;]},</span>
+<span class="sd">        &gt;&gt;&gt;             kind=&#39;scatter&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;             figsize=(6, 6))</span>
+
+<span class="sd">    Hexbin Joint plot</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_joint(data,</span>
+<span class="sd">        &gt;&gt;&gt;             var_names=[&#39;theta&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;             coords={&#39;school&#39;: [&#39;Choate&#39;, &#39;Phillips Andover&#39;]},</span>
+<span class="sd">        &gt;&gt;&gt;             kind=&#39;hexbin&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;             figsize=(6, 6))</span>
+
+<span class="sd">    KDE Joint plot</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_joint(data,</span>
+<span class="sd">        &gt;&gt;&gt;                 var_names=[&#39;theta&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;                 coords={&#39;school&#39;: [&#39;Choate&#39;, &#39;Phillips Andover&#39;]},</span>
+<span class="sd">        &gt;&gt;&gt;                 kind=&#39;kde&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;                 figsize=(6, 6))</span>
+
+<span class="sd">    Overlayed plots:</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; data2 = az.load_arviz_data(&quot;centered_eight&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; kde_kwargs = {&quot;contourf_kwargs&quot;: {&quot;alpha&quot;: 0}, &quot;contour_kwargs&quot;: {&quot;colors&quot;: &quot;k&quot;}}</span>
+<span class="sd">        &gt;&gt;&gt; ax = az.plot_joint(</span>
+<span class="sd">        ...     data, var_names=(&quot;mu&quot;, &quot;tau&quot;), kind=&quot;kde&quot;, fill_last=False,</span>
+<span class="sd">        ...     joint_kwargs=kde_kwargs, marginal_kwargs={&quot;color&quot;: &quot;k&quot;}</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; kde_kwargs[&quot;contour_kwargs&quot;][&quot;colors&quot;] = &quot;r&quot;</span>
+<span class="sd">        &gt;&gt;&gt; az.plot_joint(</span>
+<span class="sd">        ...     data2, var_names=(&quot;mu&quot;, &quot;tau&quot;), kind=&quot;kde&quot;, fill_last=False,</span>
+<span class="sd">        ...     joint_kwargs=kde_kwargs, marginal_kwargs={&quot;color&quot;: &quot;r&quot;}, ax=ax</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;plot_joint will be deprecated. Please use plot_pair instead.&quot;</span><span class="p">)</span>
+
+    <span class="n">valid_kinds</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scatter&quot;</span><span class="p">,</span> <span class="s2">&quot;kde&quot;</span><span class="p">,</span> <span class="s2">&quot;hexbin&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_kinds</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;Plot type </span><span class="si">{}</span><span class="s2"> not recognized.&quot;</span> <span class="s2">&quot;Plot type must be in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">valid_kinds</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">convert_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">var_names</span> <span class="o">=</span> <span class="n">_var_names</span><span class="p">(</span><span class="n">var_names</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filter_vars</span><span class="p">)</span>
+
+    <span class="n">plotters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">xarray_var_iter</span><span class="p">(</span><span class="n">get_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coords</span><span class="p">),</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotters</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;Number of variables to be plotted must 2 (you supplied </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plotters</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="n">figsize</span><span class="p">,</span> <span class="n">ax_labelsize</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">xt_labelsize</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_scale_fig_size</span><span class="p">(</span><span class="n">figsize</span><span class="p">,</span> <span class="n">textsize</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;kde&quot;</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="s2">&quot;plot&quot;</span>
+    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;scatter&quot;</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="s2">&quot;scatter&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="s2">&quot;hexbin&quot;</span>
+    <span class="n">joint_kwargs</span> <span class="o">=</span> <span class="n">matplotlib_kwarg_dealiaser</span><span class="p">(</span><span class="n">joint_kwargs</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">marginal_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">marginal_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">marginal_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;plot_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">marginal_kwargs</span><span class="p">[</span><span class="s2">&quot;plot_kwargs&quot;</span><span class="p">][</span><span class="s2">&quot;linewidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linewidth</span>
+
+    <span class="n">plot_joint_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+        <span class="n">plotters</span><span class="o">=</span><span class="n">plotters</span><span class="p">,</span>
+        <span class="n">ax_labelsize</span><span class="o">=</span><span class="n">ax_labelsize</span><span class="p">,</span>
+        <span class="n">xt_labelsize</span><span class="o">=</span><span class="n">xt_labelsize</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+        <span class="n">contour</span><span class="o">=</span><span class="n">contour</span><span class="p">,</span>
+        <span class="n">fill_last</span><span class="o">=</span><span class="n">fill_last</span><span class="p">,</span>
+        <span class="n">joint_kwargs</span><span class="o">=</span><span class="n">joint_kwargs</span><span class="p">,</span>
+        <span class="n">gridsize</span><span class="o">=</span><span class="n">gridsize</span><span class="p">,</span>
+        <span class="n">marginal_kwargs</span><span class="o">=</span><span class="n">marginal_kwargs</span><span class="p">,</span>
+        <span class="n">backend_kwargs</span><span class="o">=</span><span class="n">backend_kwargs</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.backend&quot;</span><span class="p">]</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">:</span>
+
+        <span class="n">plot_joint_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ax_labelsize&quot;</span><span class="p">)</span>
+        <span class="n">plot_joint_kwargs</span><span class="p">[</span><span class="s2">&quot;marginal_kwargs&quot;</span><span class="p">][</span><span class="s2">&quot;plot_kwargs&quot;</span><span class="p">][</span><span class="s2">&quot;line_width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_joint_kwargs</span><span class="p">[</span>
+            <span class="s2">&quot;marginal_kwargs&quot;</span>
+        <span class="p">][</span><span class="s2">&quot;plot_kwargs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;linewidth&quot;</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Add backend kwargs</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">get_plotting_function</span><span class="p">(</span><span class="s2">&quot;plot_joint&quot;</span><span class="p">,</span> <span class="s2">&quot;jointplot&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">plot_joint_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">axes</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

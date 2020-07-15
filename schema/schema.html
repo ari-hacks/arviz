@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InferenceData schema specification &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../api.html" />
+    <link rel="prev" title="Introduction to xarray, InferenceData, and NetCDF for ArviZ" href="../notebooks/XarrayforArviZ.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="inferencedata-schema-specification">
+<h1>InferenceData schema specification<a class="headerlink" href="#inferencedata-schema-specification" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> schema scheme defines a data structure compatible with <a class="reference external" href="https://www.unidata.ucar.edu/software/netcdf/">NetCDF</a> having 3 goals in mind: usefulness in the analysis of Bayesian inference results, reproducibility of Bayesian inference analysis and interoperability between different inference backends and programming languages.</p>
+<p>Currently there are 2 beta implementations of this design:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arviz-devs.github.io/arviz/">ArviZ</a> in Python which integrates with:</p>
+<ul>
+<li><p><a class="reference external" href="https://emcee.readthedocs.io/en/stable/">emcee</a></p></li>
+<li><p><a class="reference external" href="https://docs.pymc.io">PyMC3</a></p></li>
+<li><p><a class="reference external" href="https://pyro.ai/">Pyro</a> and <a class="reference external" href="https://pyro.ai/numpyro/">NumPyro</a></p></li>
+<li><p><a class="reference external" href="https://pystan.readthedocs.io/en/latest/index.html">PyStan</a>, <a class="reference external" href="https://mc-stan.org/users/interfaces/cmdstan">CmdStan</a> and <a class="reference external" href="https://cmdstanpy.readthedocs.io/en/latest/index.html">CmdStanPy</a></p></li>
+<li><p><a class="reference external" href="https://www.tensorflow.org/probability">TensorFlow Probability</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://github.com/arviz-devs/ArviZ.jl">ArviZ.jl</a> in Julia which integrates with:</p>
+<ul>
+<li><p><a class="reference external" href="https://github.com/StanJulia/CmdStan.jl">CmdStan.jl</a>, <a class="reference external" href="https://github.com/StanJulia/StanSample.jl">StanSample.jl</a> and <a class="reference external" href="https://github.com/StanJulia/Stan.jl">Stan.jl</a></p></li>
+<li><p><a class="reference external" href="https://turing.ml/dev/">Turing.jl</a> and indirectly any package using <a class="reference external" href="https://github.com/TuringLang/MCMCChains.jl">MCMCChains.jl</a> to store results</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+  <li><a class="reference internal" href="#terminology">Terminology</a></li>
+ <li><a class="reference internal" href="#current-design">Current Design</a>
+  <ol>
+    <li><a class="reference internal" href="#posterior">posterior</a></li>
+    <li><a class="reference internal" href="#sample-stats">sample_stats</a></li>
+    <li><a class="reference internal" href="#log-likelihood">log_likelihood</a></li>
+    <li><a class="reference internal" href="#posterior-predictive">posterior_predictive</a></li>
+    <li><a class="reference internal" href="#observed-data">observed_data</a></li>
+    <li><a class="reference internal" href="#constant-data">constant_data</a></li>
+    <li><a class="reference internal" href="#prior">prior</a></li>
+    <li><a class="reference internal" href="#sample-stats-prior">sample_stats_prior</a></li>
+    <li><a class="reference internal" href="#prior-predictive">prior_predictive</a></li>
+    <li><a class="reference internal" href="#predictions">predictions</a>
+    <li><a class="reference internal" href="#predictions-constant-data">predictions_constant_data</a>
+  </ol>
+ </li>
+ <li><a class="reference internal" href="#planned-features">Planned Features</a>
+  <ol>
+    <li><a class="reference internal" href="#sampler-parameters">Sampler parameters</a>
+  </ol>
+ </li>
+ <li><a class="reference internal" href="#examples">Examples</a></li>
+</ol></div>
+<div class="section" id="terminology">
+<h2>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h2>
+<p>The terminology used in this specification is based on <a class="reference external" href="http://xarray.pydata.org/en/stable/terminology.html">xarray’s terminology</a>, however, no xarray knowledge is assumed in this description. There are also some extensions particular to  the InferenceData case.</p>
+<ul class="simple">
+<li><p><strong>Variable</strong>: NetCDF-like variables are multidimensional labeled arrays representing a single quantity. Variables and their dimensions must be named. They can also have attributes describing it. Relevant terms related to InferenceData variables are: <em>variable_name</em>, <em>values</em> (its data), <em>dimensions</em>, <em>coordinates</em>, and <em>attributes</em>.</p></li>
+<li><p><strong>Dimension</strong>: The dimensions of an object are its named axes. A variable containing 3D data can have dimensions <code class="docutils literal notranslate"><span class="pre">[chain,</span> <span class="pre">draw,</span> <span class="pre">dim0]</span></code>, thus, its <code class="docutils literal notranslate"><span class="pre">0th</span></code>-dimension is <code class="docutils literal notranslate"><span class="pre">chain</span></code>, its <code class="docutils literal notranslate"><span class="pre">1st</span></code>-dimension is <code class="docutils literal notranslate"><span class="pre">draw</span></code> and so on. Every dimension present in an InferenceData variable must share names with a <em>coordinate</em>. Given that dimensions must be named, dimension and dimension name are used equivalents.</p></li>
+<li><p><strong>Coordinate</strong>: A named array that labels a dimension. A coordinate named <code class="docutils literal notranslate"><span class="pre">chain</span></code> with values <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code> would label the <code class="docutils literal notranslate"><span class="pre">chain</span></code> dimension. Coordinate names and values can be loosely though of as labels and tick labels along a dimension.</p></li>
+<li><p><strong>Attributes</strong>: An ordered dictionary that can store arbitrary metadata.</p></li>
+<li><p><strong>Group</strong>: Dataset containing one or several variables with a conceptual link between them. Variables inside a group will generally share some dimensions too. For example, the <code class="docutils literal notranslate"><span class="pre">posterior</span></code> group contains a representation of the posterior distribution conditioned on the observations in the <code class="docutils literal notranslate"><span class="pre">observed_data</span></code> group.</p></li>
+<li><p><strong>Matching samples</strong>: Two variables (or groups) whose samples match are those that have been generated with the same set of samples. Therefore, they will share dimensions and coordinates corresponding to sampling process. Sample dimensions (generally <code class="docutils literal notranslate"><span class="pre">(chain,</span> <span class="pre">draw)</span></code>) are the ones introduced by the sampling process.</p></li>
+<li><p><strong>Matching variables</strong>: Two groups with matching variables are groups that conceptually share variables, variable dimensions and coordinates of the variable dimensions but do not necessarily share variable names nor sample dimensions. Variable dimensions are the ones intrinsic to the data and model as opposed to sample dimensions which are the ones relative to the sampling process. When talking about specific variables, this same idea is expressed as one variable being the counterpart of the other.</p></li>
+</ul>
+</div>
+<div class="section" id="current-design">
+<h2>Current design<a class="headerlink" href="#current-design" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> stores all quantities relevant to fulfilling its goals in different groups. Different groups generally distinguish conceptually different quantities in Bayesian inference, however, convenience in creation and usage of InferenceData objects also plays a role. In general, each quantity (such as posterior distribution or observed data) will be represented by several multidimensional labeled variables.</p>
+<p>Each group should have one entry per variable and each variable should be named. When relevant, the first two dimensions of each variable should be the sample identifier (<code class="docutils literal notranslate"><span class="pre">chain</span></code>, <code class="docutils literal notranslate"><span class="pre">draw</span></code>). For groups like <code class="docutils literal notranslate"><span class="pre">observed_data</span></code> or <code class="docutils literal notranslate"><span class="pre">constant_data</span></code> these two initial dimensions are omitted. Dimensions must be named and share name with a coordinate specifying the index values, called coordinate values. Coordinate values can be repeated and should not necessarily be numerical values. Variables must not share names with dimensions.</p>
+<p>Moreover, each group contains the following attributes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">created_at</span></code>: the date of creation of the group.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inference_library</span></code>: the library used to run the inference.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inference_library_version</span></code>: version of the inference library used.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> data objects contain any combination the groups described below. There are some relations (detailed below) between the variables and dimensions of different groups. Hence, whenever related groups are present they should comply with this relations.</p>
+<div class="section" id="posterior">
+<h3><code class="docutils literal notranslate"><span class="pre">posterior</span></code><a class="headerlink" href="#posterior" title="Permalink to this headline">¶</a></h3>
+<p>Samples from the posterior distribution p(theta|y).</p>
+</div>
+<div class="section" id="sample-stats">
+<h3><code class="docutils literal notranslate"><span class="pre">sample_stats</span></code><a class="headerlink" href="#sample-stats" title="Permalink to this headline">¶</a></h3>
+<p>Information and diagnostics for each <code class="docutils literal notranslate"><span class="pre">posterior</span></code> sample, provided by the inference backend. It may vary depending on the algorithm used by the backend (i.e. an affine invariant sampler has no energy associated). The name convention used for <code class="docutils literal notranslate"><span class="pre">sample_stats</span></code> variables is the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lp</span></code>: (unnormalized) log probability for sample</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_size</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_size_bar</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tune</span></code>: boolean variable indicating if the sampler is tuning or sampling</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depth</span></code>:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tree_size</span></code>:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean_tree_accept</span></code>:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diverging</span></code>: HMC-NUTS only, boolean variable indicating divergent transitions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">energy</span></code>: HMC-NUTS only</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">energy_error</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_energy_error</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="log-likelihood">
+<h3><code class="docutils literal notranslate"><span class="pre">log_likelihood</span></code><a class="headerlink" href="#log-likelihood" title="Permalink to this headline">¶</a></h3>
+<p>Pointwise log likelihood data. Samples should match with <code class="docutils literal notranslate"><span class="pre">posterior</span></code> ones and its variables
+should match <code class="docutils literal notranslate"><span class="pre">observed_data</span></code> variables. The <code class="docutils literal notranslate"><span class="pre">observed_data</span></code> counterpart variable
+may have a different name. Moreover, some cases such as a multivariate normal
+may require some dimensions or coordinates to be different.</p>
+</div>
+<div class="section" id="posterior-predictive">
+<h3><code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code><a class="headerlink" href="#posterior-predictive" title="Permalink to this headline">¶</a></h3>
+<p>Posterior predictive samples p(y|y) corresponding to the posterior predictive distribution evaluated at the <code class="docutils literal notranslate"><span class="pre">observed_data</span></code>. Samples should match with <code class="docutils literal notranslate"><span class="pre">posterior</span></code> ones and its variables should match <code class="docutils literal notranslate"><span class="pre">observed_data</span></code> variables. The <code class="docutils literal notranslate"><span class="pre">observed_data</span></code> counterpart variable may have a different name.</p>
+</div>
+<div class="section" id="observed-data">
+<h3><code class="docutils literal notranslate"><span class="pre">observed_data</span></code><a class="headerlink" href="#observed-data" title="Permalink to this headline">¶</a></h3>
+<p>Observed data on which the <code class="docutils literal notranslate"><span class="pre">posterior</span></code> is conditional. It should only contain data which is modeled as a random variable. Each variable should have a counterpart in <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code>, however, the <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> counterpart variable may have a different name.</p>
+</div>
+<div class="section" id="constant-data">
+<h3><code class="docutils literal notranslate"><span class="pre">constant_data</span></code><a class="headerlink" href="#constant-data" title="Permalink to this headline">¶</a></h3>
+<p>Model constants, data included in the model which is not modeled as a random variable. It should be the data used to generate samples in all the groups except the <code class="docutils literal notranslate"><span class="pre">predictions</span></code> groups.</p>
+</div>
+<div class="section" id="prior">
+<h3><code class="docutils literal notranslate"><span class="pre">prior</span></code><a class="headerlink" href="#prior" title="Permalink to this headline">¶</a></h3>
+<p>Samples from the prior distribution p(theta). Samples need not match <code class="docutils literal notranslate"><span class="pre">posterior</span></code> samples. However, this group will still follow the convention on <code class="docutils literal notranslate"><span class="pre">chain</span></code> and <code class="docutils literal notranslate"><span class="pre">draw</span></code> as first dimensions. It should have matching variables with the <code class="docutils literal notranslate"><span class="pre">posterior</span></code> group.</p>
+</div>
+<div class="section" id="sample-stats-prior">
+<h3><code class="docutils literal notranslate"><span class="pre">sample_stats_prior</span></code><a class="headerlink" href="#sample-stats-prior" title="Permalink to this headline">¶</a></h3>
+<p>Information and diagnostics for the samples in the <code class="docutils literal notranslate"><span class="pre">prior</span></code> group, provided by the inference backend. It may vary depending on the algorithm used by the backend. Variable names follow the same convention defined in <a class="reference external" href="#sample_stats"><code class="docutils literal notranslate"><span class="pre">sample_stats</span></code></a>.</p>
+</div>
+<div class="section" id="prior-predictive">
+<h3><code class="docutils literal notranslate"><span class="pre">prior_predictive</span></code><a class="headerlink" href="#prior-predictive" title="Permalink to this headline">¶</a></h3>
+<p>Samples from the prior predictive distribution. Samples should match <code class="docutils literal notranslate"><span class="pre">prior</span></code> samples and each variable should have a counterpart in <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code>/<code class="docutils literal notranslate"><span class="pre">observed_data</span></code>.</p>
+</div>
+<div class="section" id="predictions">
+<h3><code class="docutils literal notranslate"><span class="pre">predictions</span></code><a class="headerlink" href="#predictions" title="Permalink to this headline">¶</a></h3>
+<p>Out of sample posterior predictive samples p(y’|y). Samples should match <code class="docutils literal notranslate"><span class="pre">posterior</span></code> samples. Its variables should have a counterpart in <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code>. However, variables in <code class="docutils literal notranslate"><span class="pre">predictions</span></code> and their counterpart in <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> can have different coordinate values.</p>
+</div>
+<div class="section" id="predictions-constant-data">
+<h3><code class="docutils literal notranslate"><span class="pre">predictions_constant_data</span></code><a class="headerlink" href="#predictions-constant-data" title="Permalink to this headline">¶</a></h3>
+<p>Model constants used to get the <code class="docutils literal notranslate"><span class="pre">predictions</span></code> samples. Its variables should have a counterpart in <code class="docutils literal notranslate"><span class="pre">constant_data</span></code>. However, variables in <code class="docutils literal notranslate"><span class="pre">predictions_constant_data</span></code> and their counterpart in <code class="docutils literal notranslate"><span class="pre">constant_data</span></code> can have different coordinate values.</p>
+</div>
+</div>
+<div class="section" id="planned-features">
+<h2>Planned features<a class="headerlink" href="#planned-features" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> structure is still evolving, with some feature being currently developed. This section aims to describe the roadmap of the specification.</p>
+<div class="section" id="sampler-parameters">
+<h3>Sampler parameters<a class="headerlink" href="#sampler-parameters" title="Permalink to this headline">¶</a></h3>
+<p>Parameters of the sampling algorithm and sampling backend to be used for analysis reproducibility.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>In order to clarify the definitions above, an example of <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> generation for a 1D linear regression is available in several programming languages and probabilistic programming frameworks. This particular inference task has been chosen because it is widely well known while still being useful and it also allows to populate all the fields in the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object.</p>
+<ul class="simple">
+<li><p>Python</p>
+<ul>
+<li><p><a class="reference internal" href="PyMC3_schema_example.html"><span class="doc">PyMC3 example</span></a></p></li>
+<li><p><a class="reference internal" href="PyStan_schema_example.html"><span class="doc">PyStan example</span></a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/schema/schema.md.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

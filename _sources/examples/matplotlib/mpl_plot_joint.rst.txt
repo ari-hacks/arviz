@@ -1,0 +1,17 @@
+
+.. _mpl_plot_joint:
+
+
+Joint Plot
+==========
+
+
+
+.. image:: _images/mpl_plot_joint.png
+
+**Python source code:** :download:`[download source: mpl_plot_joint.py]<mpl_plot_joint.py>`
+
+**API documentation:** `plot_pair <../../generated/arviz.plot_pair>`_
+
+.. literalinclude:: mpl_plot_joint.py
+    :lines: 7-

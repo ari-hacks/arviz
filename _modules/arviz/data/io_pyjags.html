@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.data.io_pyjags &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.data.io_pyjags</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Convert PyJAGS sample dictionaries to ArviZ inference data objects.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">tp</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span>
+
+<span class="kn">from</span> <span class="nn">arviz.data.inference_data</span> <span class="kn">import</span> <span class="n">InferenceData</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">requires</span><span class="p">,</span> <span class="n">dict_to_dataset</span>
+<span class="kn">from</span> <span class="nn">..rcparams</span> <span class="kn">import</span> <span class="n">rcParams</span>
+
+
+<span class="k">class</span> <span class="nc">PyJAGSConverter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Encapsulate PyJAGS specific logic.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">posterior</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prior</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_likelihood</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_warmup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">warmup_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">log_likelihood</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">posterior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># create a shallow copy of the dictionary</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">log_likelihood</span> <span class="o">=</span> <span class="p">[</span><span class="n">log_likelihood</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">log_likelihood</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">log_likelihood</span><span class="p">}</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">obs_var_name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">log_like_name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">obs_var_name</span><span class="p">,</span> <span class="n">log_like_name</span> <span class="ow">in</span> <span class="n">log_likelihood</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">posterior</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dims</span> <span class="o">=</span> <span class="n">dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_warmup</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;data.save_warmup&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">save_warmup</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">save_warmup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warmup_iterations</span> <span class="o">=</span> <span class="n">warmup_iterations</span>
+
+        <span class="kn">import</span> <span class="nn">pyjags</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyjags</span> <span class="o">=</span> <span class="n">pyjags</span>
+
+    <span class="k">def</span> <span class="nf">_pyjags_samples_to_xarray</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pyjags_samples</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">data_warmup</span> <span class="o">=</span> <span class="n">get_draws</span><span class="p">(</span>
+            <span class="n">pyjags_samples</span><span class="o">=</span><span class="n">pyjags_samples</span><span class="p">,</span>
+            <span class="n">warmup_iterations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">warmup_iterations</span><span class="p">,</span>
+            <span class="n">warmup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_warmup</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">dict_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pyjags</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">),</span>
+            <span class="n">dict_to_dataset</span><span class="p">(</span><span class="n">data_warmup</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pyjags</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">,),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">posterior_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Extract posterior samples from fit.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyjags_samples_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;prior&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">prior_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Extract posterior samples from fit.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyjags_samples_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">log_likelihood_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Extract log likelihood samples from fit.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyjags_samples_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_inference_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert all available data to an InferenceData object.&quot;&quot;&quot;</span>
+        <span class="c1"># obs_const_dict = self.observed_and_constant_data_to_xarray()</span>
+        <span class="c1"># predictions_const_data = self.predictions_constant_data_to_xarray()</span>
+        <span class="n">save_warmup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_warmup</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_iterations</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="c1"># self.posterior is not None</span>
+
+        <span class="n">idata_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;posterior&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior_to_xarray</span><span class="p">(),</span>
+            <span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior_to_xarray</span><span class="p">(),</span>
+            <span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood_to_xarray</span><span class="p">(),</span>
+            <span class="s2">&quot;save_warmup&quot;</span><span class="p">:</span> <span class="n">save_warmup</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">InferenceData</span><span class="p">(</span><span class="o">**</span><span class="n">idata_dict</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_draws</span><span class="p">(</span>
+    <span class="n">pyjags_samples</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tp</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">warmup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">warmup_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert PyJAGS samples dictionary to ArviZ format and split warmup samples.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pyjags_samples: a dictionary mapping variable names to NumPy arrays of MCMC</span>
+<span class="sd">                    chains of samples with shape</span>
+<span class="sd">                    (parameter_dimension, chain_length, number_of_chains)</span>
+
+<span class="sd">    variables: the variables to extract from the samples dictionary</span>
+<span class="sd">    warmup: whether or not to return warmup draws in data_warmup</span>
+<span class="sd">    warmup_iterations: the number of warmup iterations if any</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A tuple of two samples dictionaries in ArviZ format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_warmup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pyjags_samples</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;variables must be of type Sequence or str&quot;</span><span class="p">)</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">warmup_iterations</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">warmup_samples</span><span class="p">,</span> <span class="n">actual_samples</span><span class="p">,)</span> <span class="o">=</span> <span class="n">_split_pyjags_dict_in_warmup_and_actual_samples</span><span class="p">(</span>
+            <span class="n">pyjags_samples</span><span class="o">=</span><span class="n">pyjags_samples</span><span class="p">,</span>
+            <span class="n">warmup_iterations</span><span class="o">=</span><span class="n">warmup_iterations</span><span class="p">,</span>
+            <span class="n">variable_names</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_convert_pyjags_dict_to_arviz_dict</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="n">actual_samples</span><span class="p">,</span> <span class="n">variable_names</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">warmup</span><span class="p">:</span>
+            <span class="n">data_warmup</span> <span class="o">=</span> <span class="n">_convert_pyjags_dict_to_arviz_dict</span><span class="p">(</span>
+                <span class="n">samples</span><span class="o">=</span><span class="n">warmup_samples</span><span class="p">,</span> <span class="n">variable_names</span><span class="o">=</span><span class="n">variables</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_convert_pyjags_dict_to_arviz_dict</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="n">pyjags_samples</span><span class="p">,</span> <span class="n">variable_names</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_warmup</span>
+
+
+<span class="k">def</span> <span class="nf">_split_pyjags_dict_in_warmup_and_actual_samples</span><span class="p">(</span>
+    <span class="n">pyjags_samples</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">warmup_iterations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split a PyJAGS samples dictionary into actual samples and warmup samples.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pyjags_samples: a dictionary mapping variable names to NumPy arrays of MCMC</span>
+<span class="sd">                    chains of samples with shape</span>
+<span class="sd">                    (parameter_dimension, chain_length, number_of_chains)</span>
+
+<span class="sd">    warmup_iterations: the number of draws to be split off for warmum</span>
+<span class="sd">    variable_names: the variables in the dictionary to use; if None use all</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A tuple of two pyjags samples dictionaries in PyJAGS format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">variable_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">variable_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pyjags_samples</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="n">warmup_samples</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">actual_samples</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">chains</span> <span class="ow">in</span> <span class="n">pyjags_samples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">variable_name</span> <span class="ow">in</span> <span class="n">variable_names</span><span class="p">:</span>
+            <span class="n">warmup_samples</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">chains</span><span class="p">[:,</span> <span class="p">:</span><span class="n">warmup_iterations</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">actual_samples</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">chains</span><span class="p">[:,</span> <span class="n">warmup_iterations</span><span class="p">:,</span> <span class="p">:]</span>
+
+    <span class="k">return</span> <span class="n">warmup_samples</span><span class="p">,</span> <span class="n">actual_samples</span>
+
+
+<span class="k">def</span> <span class="nf">_convert_pyjags_dict_to_arviz_dict</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">variable_names</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a PyJAGS dictionary to an ArviZ dictionary.</span>
+
+<span class="sd">    Takes a python dictionary of samples that has been generated by the sample</span>
+<span class="sd">    method of a model instance and returns a dictionary of samples in ArviZ</span>
+<span class="sd">    format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samples: a dictionary mapping variable names to P arrays with shape</span>
+<span class="sd">             (parameter_dimension, chain_length, number_of_chains)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    a dictionary mapping variable names to NumPy arrays with shape</span>
+<span class="sd">             (number_of_chains, chain_length, parameter_dimension)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pyjags returns a dictionary of NumPy arrays with shape</span>
+    <span class="c1">#         (parameter_dimension, chain_length, number_of_chains)</span>
+    <span class="c1"># but arviz expects samples with shape</span>
+    <span class="c1">#         (number_of_chains, chain_length, parameter_dimension)</span>
+
+    <span class="n">variable_name_to_samples_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">variable_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">variable_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">chains</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">variable_name</span> <span class="ow">in</span> <span class="n">variable_names</span><span class="p">:</span>
+            <span class="n">parameter_dimension</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">chains</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">if</span> <span class="n">parameter_dimension</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">variable_name_to_samples_map</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">chains</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">variable_name_to_samples_map</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">chains</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">variable_name_to_samples_map</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_arviz_dict_from_inference_data</span><span class="p">(</span><span class="n">idata</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the samples dictionary from an ArviZ inference data object.</span>
+
+<span class="sd">    Extracts a dictionary mapping parameter names to NumPy arrays of samples</span>
+<span class="sd">    with shape (number_of_chains, chain_length, parameter_dimension) from an</span>
+<span class="sd">    ArviZ inference data object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idata: InferenceData</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    a dictionary mapping variable names to NumPy arrays with shape</span>
+<span class="sd">             (number_of_chains, chain_length, parameter_dimension)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">variable_name_to_samples_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;data_vars&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">variable_name_to_samples_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">variable_name_to_samples_map</span>
+
+
+<span class="k">def</span> <span class="nf">_convert_arviz_dict_to_pyjags_dict</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert and ArviZ dictionary to a PyJAGS dictionary.</span>
+
+<span class="sd">    Takes a python dictionary of samples in ArviZ format and returns the samples</span>
+<span class="sd">    as a dictionary in PyJAGS format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samples: dict of {str : array_like}</span>
+<span class="sd">        a dictionary mapping variable names to NumPy arrays with shape</span>
+<span class="sd">        (number_of_chains, chain_length, parameter_dimension)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    a dictionary mapping variable names to NumPy arrays with shape</span>
+<span class="sd">             (parameter_dimension, chain_length, number_of_chains)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pyjags returns a dictionary of NumPy arrays with shape</span>
+    <span class="c1">#         (parameter_dimension, chain_length, number_of_chains)</span>
+    <span class="c1"># but arviz expects samples with shape</span>
+    <span class="c1">#         (number_of_chains, chain_length, parameter_dimension)</span>
+
+    <span class="n">variable_name_to_samples_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">chains</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">chains</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">number_of_chains</span><span class="p">,</span> <span class="n">chain_length</span> <span class="o">=</span> <span class="n">chains</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">chains</span> <span class="o">=</span> <span class="n">chains</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">number_of_chains</span><span class="p">,</span> <span class="n">chain_length</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">variable_name_to_samples_map</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">chains</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">variable_name_to_samples_map</span>
+
+
+<div class="viewcode-block" id="from_pyjags"><a class="viewcode-back" href="../../../generated/arviz.from_pyjags.html#arviz.from_pyjags">[docs]</a><span class="k">def</span> <span class="nf">from_pyjags</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">prior</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">log_likelihood</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_warmup</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">warmup_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InferenceData</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert PyJAGS posterior samples to an ArviZ inference data object.</span>
+
+<span class="sd">    Takes a python dictionary of samples that has been generated by the sample</span>
+<span class="sd">    method of a model instance and returns an Arviz inference data object.</span>
+<span class="sd">    For a usage example read the</span>
+<span class="sd">    :doc:`Cookbook section on from_pyjags &lt;/notebooks/InferenceDataCookbook&gt;`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    posterior: dict of {str : array_like}, optional</span>
+<span class="sd">        a dictionary mapping variable names to NumPy arrays containing</span>
+<span class="sd">        posterior samples with shape</span>
+<span class="sd">        (parameter_dimension, chain_length, number_of_chains)</span>
+
+<span class="sd">    prior: dict of {str : array_like}, optional</span>
+<span class="sd">        a dictionary mapping variable names to NumPy arrays containing</span>
+<span class="sd">        prior samples with shape</span>
+<span class="sd">        (parameter_dimension, chain_length, number_of_chains)</span>
+
+<span class="sd">    log_likelihood: dict of {str: str}, list of str or str, optional</span>
+<span class="sd">        Pointwise log_likelihood for the data. log_likelihood is extracted from the</span>
+<span class="sd">        posterior. It is recommended to use this argument as a dictionary whose keys</span>
+<span class="sd">        are observed variable names and its values are the variables storing log</span>
+<span class="sd">        likelihood arrays in the JAGS code. In other cases, a dictionary with keys</span>
+<span class="sd">        equal to its values is used.</span>
+
+<span class="sd">    coords: dict[str, iterable]</span>
+<span class="sd">        A dictionary containing the values that are used as index. The key</span>
+<span class="sd">        is the name of the dimension, the values are the index values.</span>
+
+<span class="sd">    dims: dict[str, List(str)]</span>
+<span class="sd">        A mapping from variables to a list of coordinate names for the variable.</span>
+
+<span class="sd">    save_warmup : bool, optional</span>
+<span class="sd">       Save warmup iterations in InferenceData. If not defined, use default defined by the rcParams.</span>
+
+<span class="sd">    warmup_iterations: int, optional</span>
+<span class="sd">        Number of warmup iterations</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    InferenceData</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">PyJAGSConverter</span><span class="p">(</span>
+        <span class="n">posterior</span><span class="o">=</span><span class="n">posterior</span><span class="p">,</span>
+        <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
+        <span class="n">log_likelihood</span><span class="o">=</span><span class="n">log_likelihood</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">save_warmup</span><span class="o">=</span><span class="n">save_warmup</span><span class="p">,</span>
+        <span class="n">warmup_iterations</span><span class="o">=</span><span class="n">warmup_iterations</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_inference_data</span><span class="p">()</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

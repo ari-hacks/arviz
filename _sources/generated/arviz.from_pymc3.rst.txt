@@ -1,0 +1,6 @@
+arviz.from\_pymc3
+=================
+
+.. currentmodule:: arviz
+
+.. autofunction:: from_pymc3

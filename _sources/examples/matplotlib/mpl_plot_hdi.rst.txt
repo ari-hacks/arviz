@@ -1,0 +1,17 @@
+
+.. _mpl_plot_hdi:
+
+
+Plot HDI
+========
+
+
+
+.. image:: _images/mpl_plot_hdi.png
+
+**Python source code:** :download:`[download source: mpl_plot_hdi.py]<mpl_plot_hdi.py>`
+
+**API documentation:** `plot_hdi <../../generated/arviz.plot_hdi>`_
+
+.. literalinclude:: mpl_plot_hdi.py
+    :lines: 7-

@@ -1,0 +1,17 @@
+
+.. _mpl_plot_rank:
+
+
+Rank plot
+=========
+
+
+
+.. image:: _images/mpl_plot_rank.png
+
+**Python source code:** :download:`[download source: mpl_plot_rank.py]<mpl_plot_rank.py>`
+
+**API documentation:** `plot_rank <../../generated/arviz.plot_rank>`_
+
+.. literalinclude:: mpl_plot_rank.py
+    :lines: 7-

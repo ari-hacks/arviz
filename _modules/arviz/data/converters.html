@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.data.converters &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.data.converters</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;High level conversion functions.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">.inference_data</span> <span class="kn">import</span> <span class="n">InferenceData</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">dict_to_dataset</span>
+<span class="kn">from</span> <span class="nn">.io_cmdstan</span> <span class="kn">import</span> <span class="n">from_cmdstan</span>
+<span class="kn">from</span> <span class="nn">.io_cmdstanpy</span> <span class="kn">import</span> <span class="n">from_cmdstanpy</span>
+<span class="kn">from</span> <span class="nn">.io_emcee</span> <span class="kn">import</span> <span class="n">from_emcee</span>
+<span class="kn">from</span> <span class="nn">.io_numpyro</span> <span class="kn">import</span> <span class="n">from_numpyro</span>
+<span class="kn">from</span> <span class="nn">.io_pymc3</span> <span class="kn">import</span> <span class="n">from_pymc3</span>
+<span class="kn">from</span> <span class="nn">.io_pyro</span> <span class="kn">import</span> <span class="n">from_pyro</span>
+<span class="kn">from</span> <span class="nn">.io_pystan</span> <span class="kn">import</span> <span class="n">from_pystan</span>
+
+
+<span class="c1"># pylint: disable=too-many-return-statements</span>
+<div class="viewcode-block" id="convert_to_inference_data"><a class="viewcode-back" href="../../../generated/arviz.convert_to_inference_data.html#arviz.convert_to_inference_data">[docs]</a><span class="k">def</span> <span class="nf">convert_to_inference_data</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior&quot;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert a supported object to an InferenceData object.</span>
+
+<span class="sd">    This function sends `obj` to the right conversion function. It is idempotent,</span>
+<span class="sd">    in that it will return arviz.InferenceData objects unchanged.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : dict, str, np.ndarray, xr.Dataset, pystan fit, pymc3 trace</span>
+<span class="sd">        A supported object to convert to InferenceData:</span>
+<span class="sd">            | InferenceData: returns unchanged</span>
+<span class="sd">            | str: Attempts to load the cmdstan csv or netcdf dataset from disk</span>
+<span class="sd">            | pystan fit: Automatically extracts data</span>
+<span class="sd">            | cmdstanpy fit: Automatically extracts data</span>
+<span class="sd">            | cmdstan csv-list: Automatically extracts data</span>
+<span class="sd">            | pymc3 trace: Automatically extracts data</span>
+<span class="sd">            | emcee sampler: Automatically extracts data</span>
+<span class="sd">            | pyro MCMC: Automatically extracts data</span>
+<span class="sd">            | xarray.Dataset: adds to InferenceData as only group</span>
+<span class="sd">            | xarray.DataArray: creates an xarray dataset as the only group, gives the</span>
+<span class="sd">                         array an arbitrary name, if name not set</span>
+<span class="sd">            | dict: creates an xarray dataset as the only group</span>
+<span class="sd">            | numpy array: creates an xarray dataset as the only group, gives the</span>
+<span class="sd">                         array an arbitrary name</span>
+<span class="sd">    group : str</span>
+<span class="sd">        If `obj` is a dict or numpy array, assigns the resulting xarray</span>
+<span class="sd">        dataset to this group. Default: &quot;posterior&quot;.</span>
+<span class="sd">    coords : dict[str, iterable]</span>
+<span class="sd">        A dictionary containing the values that are used as index. The key</span>
+<span class="sd">        is the name of the dimension, the values are the index values.</span>
+<span class="sd">    dims : dict[str, List(str)]</span>
+<span class="sd">        A mapping from variables to a list of coordinate names for the variable</span>
+<span class="sd">    kwargs</span>
+<span class="sd">        Rest of the supported keyword arguments transferred to conversion function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    InferenceData</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;coords&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coords</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dims&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dims</span>
+
+    <span class="c1"># Cases that convert to InferenceData</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">InferenceData</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dims</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot use coords or dims arguments with InferenceData value.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;sample_stats&quot;</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;posterior&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;sample_stats_prior&quot;</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;prior&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">from_cmdstan</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dims</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot use coords or dims arguments reading InferenceData from netcdf.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">InferenceData</span><span class="o">.</span><span class="n">from_netcdf</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;StanFit4Model&quot;</span><span class="p">,</span> <span class="s2">&quot;CmdStanMCMC&quot;</span><span class="p">}</span>
+        <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="s2">&quot;stan.fit&quot;</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;sample_stats&quot;</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;posterior&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;sample_stats_prior&quot;</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;prior&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;CmdStanMCMC&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">from_cmdstanpy</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pystan or pystan3</span>
+            <span class="k">return</span> <span class="n">from_pystan</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;MultiTrace&quot;</span><span class="p">:</span>  <span class="c1"># ugly, but doesn&#39;t make PyMC3 a requirement</span>
+        <span class="k">return</span> <span class="n">from_pymc3</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;EnsembleSampler&quot;</span><span class="p">:</span>  <span class="c1"># ugly, but doesn&#39;t make emcee a requirement</span>
+        <span class="k">return</span> <span class="n">from_emcee</span><span class="p">(</span><span class="n">sampler</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;MCMC&quot;</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pyro&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">from_pyro</span><span class="p">(</span><span class="n">posterior</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;MCMC&quot;</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;numpyro&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">from_numpyro</span><span class="p">(</span><span class="n">posterior</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># Cases that convert to xarray</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">obj</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dict_to_dataset</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dict_to_dataset</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="p">},</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;sample_stats&quot;</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;posterior&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;sample_stats_prior&quot;</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;prior&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">from_cmdstan</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">allowable_types</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;xarray dataarray&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;xarray dataset&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dict&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;netcdf filename&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numpy array&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pystan fit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pymc3 trace&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emcee fit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pyro mcmc fit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numpyro mcmc fit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cmdstan fit csv filename&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cmdstanpy fit&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Can only convert </span><span class="si">{}</span><span class="s2"> to InferenceData, not </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">allowable_types</span><span class="p">),</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">InferenceData</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">group</span><span class="p">:</span> <span class="n">dataset</span><span class="p">})</span></div>
+
+
+<span class="k">def</span> <span class="nf">convert_to_dataset</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior&quot;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a supported object to an xarray dataset.</span>
+
+<span class="sd">    This function is idempotent, in that it will return xarray.Dataset functions</span>
+<span class="sd">    unchanged. Raises `ValueError` if the desired group can not be extracted.</span>
+
+<span class="sd">    Note this goes through a DataInference object. See `convert_to_inference_data`</span>
+<span class="sd">    for more details. Raises ValueError if it can not work out the desired</span>
+<span class="sd">    conversion.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : dict, str, np.ndarray, xr.Dataset, pystan fit, pymc3 trace</span>
+<span class="sd">        A supported object to convert to InferenceData:</span>
+<span class="sd">            InferenceData: returns unchanged</span>
+<span class="sd">            str: Attempts to load the netcdf dataset from disk</span>
+<span class="sd">            pystan fit: Automatically extracts data</span>
+<span class="sd">            pymc3 trace: Automatically extracts data</span>
+<span class="sd">            xarray.Dataset: adds to InferenceData as only group</span>
+<span class="sd">            xarray.DataArray: creates an xarray dataset as the only group, gives the</span>
+<span class="sd">                         array an arbitrary name, if name not set</span>
+<span class="sd">            dict: creates an xarray dataset as the only group</span>
+<span class="sd">            numpy array: creates an xarray dataset as the only group, gives the</span>
+<span class="sd">                         array an arbitrary name</span>
+<span class="sd">    group : str</span>
+<span class="sd">        If `obj` is a dict or numpy array, assigns the resulting xarray</span>
+<span class="sd">        dataset to this group.</span>
+<span class="sd">    coords : dict[str, iterable]</span>
+<span class="sd">        A dictionary containing the values that are used as index. The key</span>
+<span class="sd">        is the name of the dimension, the values are the index values.</span>
+<span class="sd">    dims : dict[str, List(str)]</span>
+<span class="sd">        A mapping from variables to a list of coordinate names for the variable</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inference_data</span> <span class="o">=</span> <span class="n">convert_to_inference_data</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">inference_data</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Can not extract </span><span class="si">{group}</span><span class="s2"> from </span><span class="si">{obj}</span><span class="s2">! See </span><span class="si">{filename}</span><span class="s2"> for other &quot;</span>
+            <span class="s2">&quot;conversion utilities.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+
+.. _mpl_styles:
+
+
+Matplotlib styles
+=================
+
+
+
+.. image:: _images/mpl_styles.png
+
+**Python source code:** :download:`[download source: mpl_styles.py]<mpl_styles.py>`
+
+**API documentation:** No API Documentation available
+
+.. literalinclude:: mpl_styles.py
+    :lines: 7-

@@ -1,0 +1,17 @@
+
+.. _mpl_plot_parallel:
+
+
+Parallel Plot
+=============
+
+
+
+.. image:: _images/mpl_plot_parallel.png
+
+**Python source code:** :download:`[download source: mpl_plot_parallel.py]<mpl_plot_parallel.py>`
+
+**API documentation:** `plot_parallel <../../generated/arviz.plot_parallel>`_
+
+.. literalinclude:: mpl_plot_parallel.py
+    :lines: 7-

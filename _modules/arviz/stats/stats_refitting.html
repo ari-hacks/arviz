@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.stats.stats_refitting &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.stats.stats_refitting</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Stats functions that require refitting the model.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.stats</span> <span class="kn">import</span> <span class="n">loo</span>
+<span class="kn">from</span> <span class="nn">.stats_utils</span> <span class="kn">import</span> <span class="n">logsumexp</span> <span class="k">as</span> <span class="n">_logsumexp</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;reloo&quot;</span><span class="p">]</span>
+
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="reloo"><a class="viewcode-back" href="../../../generated/arviz.reloo.html#arviz.reloo">[docs]</a><span class="k">def</span> <span class="nf">reloo</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">loo_orig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k_thresh</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Recalculate exact Leave-One-Out cross validation refitting where the approximation fails.</span>
+
+<span class="sd">    ``az.loo`` estimates the values of Leave-One-Out (LOO) cross validation using Pareto</span>
+<span class="sd">    Smoothed Importance Sampling (PSIS) to approximate its value. PSIS works well when</span>
+<span class="sd">    the posterior and the posterior_i (excluding observation i from the data used to fit)</span>
+<span class="sd">    are similar. In some cases, there are highly influential observations for which PSIS</span>
+<span class="sd">    cannot approximate the LOO-CV, and a warning of a large Pareto shape is sent by ArviZ.</span>
+<span class="sd">    This cases typically have a handful of bad or very bad Pareto shapes and a majority of</span>
+<span class="sd">    good or ok shapes.</span>
+
+<span class="sd">    Therefore, this may not indicate that the model is not robust enough</span>
+<span class="sd">    nor that these observations are inherently bad, only that PSIS cannot approximate LOO-CV</span>
+<span class="sd">    correctly. Thus, we can use PSIS for all observations where the Pareto shape is below a</span>
+<span class="sd">    threshold and refit the model to perform exact cross validation for the handful of</span>
+<span class="sd">    observations where PSIS cannot be used. This approach allows to properly approximate</span>
+<span class="sd">    LOO-CV with only a handful of refits, which in most cases is still much less computationally</span>
+<span class="sd">    expensive than exact LOO-CV, which needs one refit per observation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wrapper: SamplingWrapper-like</span>
+<span class="sd">        Class (preferably a subclass of ``az.SamplingWrapper``, see :ref:`wrappers_api`</span>
+<span class="sd">        for details) implementing the methods described</span>
+<span class="sd">        in the SamplingWrapper docs. This allows ArviZ to call **any** sampling backend</span>
+<span class="sd">        (like PyStan or emcee) using always the same syntax.</span>
+<span class="sd">    loo_orig : ELPDData, optional</span>
+<span class="sd">        ELPDData instance with pointwise loo results. The pareto_k attribute will be checked</span>
+<span class="sd">        for values above the threshold.</span>
+<span class="sd">    k_thresh : float, optional</span>
+<span class="sd">        Pareto shape threshold. Each pareto shape value above ``k_thresh`` will trigger</span>
+<span class="sd">        a refit excluding that observation.</span>
+<span class="sd">    scale : str, optional</span>
+<span class="sd">        Only taken into account when loo_orig is None. See ``az.loo`` for valid options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ELPDData</span>
+<span class="sd">        ELPDData instance containing the PSIS approximation where possible and the exact</span>
+<span class="sd">        LOO-CV result where PSIS failed. The Pareto shape of the observations where exact</span>
+<span class="sd">        LOO-CV was performed is artificially set to 0, but as PSIS is not performed, it</span>
+<span class="sd">        should be ignored.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    It is strongly recommended to first compute ``az.loo`` on the inference results to</span>
+<span class="sd">    confirm that the number of values above the threshold is small enough. Otherwise,</span>
+<span class="sd">    prohibitive computation time may be needed to perform all required refits.</span>
+
+<span class="sd">    As an extreme case, artificially assigning all ``pareto_k`` values to something</span>
+<span class="sd">    larger than the threshold would make ``reloo`` perform the whole exact LOO-CV.</span>
+<span class="sd">    This is not generally recommended</span>
+<span class="sd">    nor intended, however, if needed, this function can be used to achieve the result.</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    Sampling wrappers are an experimental feature in a very early stage. Please use them</span>
+<span class="sd">    with caution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">required_methods</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;sel_observations&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;get_inference_data&quot;</span><span class="p">,</span> <span class="s2">&quot;log_likelihood__i&quot;</span><span class="p">)</span>
+    <span class="n">not_implemented</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">check_implemented_methods</span><span class="p">(</span><span class="n">required_methods</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">not_implemented</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;Passed wrapper instance does not implement all methods required for reloo &quot;</span>
+            <span class="s2">&quot;to work. Check the documentation of SamplingWrapper. </span><span class="si">{}</span><span class="s2"> must be &quot;</span>
+            <span class="s2">&quot;implemented and were not found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">not_implemented</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">loo_orig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">loo_orig</span> <span class="o">=</span> <span class="n">loo</span><span class="p">(</span><span class="n">wrapper</span><span class="o">.</span><span class="n">idata_orig</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+    <span class="n">loo_refitted</span> <span class="o">=</span> <span class="n">loo_orig</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">khats</span> <span class="o">=</span> <span class="n">loo_refitted</span><span class="o">.</span><span class="n">pareto_k</span>
+    <span class="n">loo_i</span> <span class="o">=</span> <span class="n">loo_refitted</span><span class="o">.</span><span class="n">loo_i</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">loo_orig</span><span class="o">.</span><span class="n">loo_scale</span>
+
+    <span class="k">if</span> <span class="n">scale</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;deviance&quot;</span><span class="p">:</span>
+        <span class="n">scale_value</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">scale</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
+        <span class="n">scale_value</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">scale</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;negative_log&quot;</span><span class="p">:</span>
+        <span class="n">scale_value</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">lppd_orig</span> <span class="o">=</span> <span class="n">loo_orig</span><span class="o">.</span><span class="n">p_loo</span> <span class="o">+</span> <span class="n">loo_orig</span><span class="o">.</span><span class="n">loo</span> <span class="o">/</span> <span class="n">scale_value</span>
+    <span class="n">n_data_points</span> <span class="o">=</span> <span class="n">loo_orig</span><span class="o">.</span><span class="n">n_data_points</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;reloo is an experimental and untested feature&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">khats</span> <span class="o">&gt;</span> <span class="n">k_thresh</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">khats</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Refitting model excluding observation </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+            <span class="n">new_obs</span><span class="p">,</span> <span class="n">excluded_obs</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">sel_observations</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="n">fit</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">new_obs</span><span class="p">)</span>
+            <span class="n">idata_idx</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">get_inference_data</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>
+            <span class="n">log_like_idx</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">log_likelihood__i</span><span class="p">(</span><span class="n">excluded_obs</span><span class="p">,</span> <span class="n">idata_idx</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="n">loo_lppd_idx</span> <span class="o">=</span> <span class="n">scale_value</span> <span class="o">*</span> <span class="n">_logsumexp</span><span class="p">(</span><span class="n">log_like_idx</span><span class="p">,</span> <span class="n">b_inv</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">log_like_idx</span><span class="p">))</span>
+            <span class="n">khats</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">loo_i</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">loo_lppd_idx</span>
+        <span class="n">loo_refitted</span><span class="o">.</span><span class="n">loo</span> <span class="o">=</span> <span class="n">loo_i</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">loo_refitted</span><span class="o">.</span><span class="n">loo_se</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_data_points</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">loo_i</span><span class="o">.</span><span class="n">values</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
+        <span class="n">loo_refitted</span><span class="o">.</span><span class="n">p_loo</span> <span class="o">=</span> <span class="n">lppd_orig</span> <span class="o">-</span> <span class="n">loo_refitted</span><span class="o">.</span><span class="n">loo</span> <span class="o">/</span> <span class="n">scale_value</span>
+        <span class="k">return</span> <span class="n">loo_refitted</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No problematic observations&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loo_orig</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

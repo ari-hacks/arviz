@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.plots.pairplot &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.plots.pairplot</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Plot a scatter, kde and/or hexbin of sampled parameters.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">convert_to_dataset</span><span class="p">,</span> <span class="n">convert_to_inference_data</span>
+<span class="kn">from</span> <span class="nn">.plot_utils</span> <span class="kn">import</span> <span class="n">xarray_to_ndarray</span><span class="p">,</span> <span class="n">get_plotting_function</span>
+<span class="kn">from</span> <span class="nn">..rcparams</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_var_names</span><span class="p">,</span> <span class="n">get_coords</span>
+
+
+<div class="viewcode-block" id="plot_pair"><a class="viewcode-back" href="../../../generated/arviz.plot_pair.html#arviz.plot_pair">[docs]</a><span class="k">def</span> <span class="nf">plot_pair</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior&quot;</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">filter_vars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">marginals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">textsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;scatter&quot;</span><span class="p">,</span>
+    <span class="n">gridsize</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">contour</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">plot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">fill_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">divergences</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">divergences_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">scatter_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">kde_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">hexbin_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">marginal_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">point_estimate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">point_estimate_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">point_estimate_marker_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">reference_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">reference_values_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a scatter, kde and/or hexbin matrix with (optional) marginals on the diagonal.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: obj</span>
+<span class="sd">        Any object that can be converted to an az.InferenceData object</span>
+<span class="sd">        Refer to documentation of az.convert_to_dataset for details</span>
+<span class="sd">    group: str, optional</span>
+<span class="sd">        Specifies which InferenceData group should be plotted.  Defaults to &#39;posterior&#39;.</span>
+<span class="sd">    var_names: list of variable names, optional</span>
+<span class="sd">        Variables to be plotted, if None all variable are plotted. Prefix the</span>
+<span class="sd">        variables by `~` when you want to exclude them from the plot.</span>
+<span class="sd">    filter_vars: {None, &quot;like&quot;, &quot;regex&quot;}, optional, default=None</span>
+<span class="sd">        If `None` (default), interpret var_names as the real variables names. If &quot;like&quot;,</span>
+<span class="sd">        interpret var_names as substrings of the real variables names. If &quot;regex&quot;,</span>
+<span class="sd">        interpret var_names as regular expressions on the real variables names. A la</span>
+<span class="sd">        `pandas.filter`.</span>
+<span class="sd">    coords: mapping, optional</span>
+<span class="sd">        Coordinates of var_names to be plotted. Passed to `Dataset.sel`</span>
+<span class="sd">    marginals: bool, optional</span>
+<span class="sd">        If True pairplot will include marginal distributions for every variable</span>
+<span class="sd">    figsize: figure size tuple</span>
+<span class="sd">        If None, size is (8 + numvars, 8 + numvars)</span>
+<span class="sd">    textsize: int</span>
+<span class="sd">        Text size for labels. If None it will be autoscaled based on figsize.</span>
+<span class="sd">    kind : str or List[str]</span>
+<span class="sd">        Type of plot to display (scatter, kde and/or hexbin)</span>
+<span class="sd">    gridsize: int or (int, int), optional</span>
+<span class="sd">        Only works for kind=hexbin.</span>
+<span class="sd">        The number of hexagons in the x-direction. The corresponding number of hexagons in the</span>
+<span class="sd">        y-direction is chosen such that the hexagons are approximately regular.</span>
+<span class="sd">        Alternatively, gridsize can be a tuple with two elements specifying the number of hexagons</span>
+<span class="sd">        in the x-direction and the y-direction.</span>
+<span class="sd">    contour : bool, optional, deprecated, Defaults to True.</span>
+<span class="sd">        If True plot the 2D KDE using contours, otherwise plot a smooth 2D KDE. Defaults to True.</span>
+<span class="sd">        **Note:** this default is implemented in the body of the code, not in argument processing.</span>
+<span class="sd">    fill_last : bool</span>
+<span class="sd">        If True fill the last contour of the 2D KDE plot. Defaults to True.</span>
+<span class="sd">    divergences: Boolean</span>
+<span class="sd">        If True divergences will be plotted in a different color, only if group is either &#39;prior&#39;</span>
+<span class="sd">        or &#39;posterior&#39;.</span>
+<span class="sd">    colorbar: bool</span>
+<span class="sd">        If True a colorbar will be included as part of the plot (Defaults to False).</span>
+<span class="sd">        Only works when kind=hexbin</span>
+<span class="sd">    ax: axes, optional</span>
+<span class="sd">        Matplotlib axes or bokeh figures.</span>
+<span class="sd">    divergences_kwargs: dicts, optional</span>
+<span class="sd">        Additional keywords passed to ax.scatter for divergences</span>
+<span class="sd">    scatter_kwargs:</span>
+<span class="sd">        Additional keywords passed to ax.plot when using scatter kind</span>
+<span class="sd">    kde_kwargs: dict, optional</span>
+<span class="sd">        Additional keywords passed to az.plot_kde when using kde kind</span>
+<span class="sd">    hexbin_kwargs: dict, optional</span>
+<span class="sd">        Additional keywords passed to ax.hexbin when using hexbin kind</span>
+<span class="sd">    backend: str, optional</span>
+<span class="sd">        Select plotting backend {&quot;matplotlib&quot;,&quot;bokeh&quot;}. Default &quot;matplotlib&quot;.</span>
+<span class="sd">    backend_kwargs: bool, optional</span>
+<span class="sd">        These are kwargs specific to the backend being used. For additional documentation</span>
+<span class="sd">        check the plotting method of the backend.</span>
+<span class="sd">    marginal_kwargs: dict, optional</span>
+<span class="sd">        Additional keywords passed to az.plot_dist, modifying the marginal distributions</span>
+<span class="sd">        plotted in the diagonal.</span>
+<span class="sd">    point_estimate: str, optional</span>
+<span class="sd">        Select point estimate from &#39;mean&#39;, &#39;mode&#39; or &#39;median&#39;. The point estimate will be</span>
+<span class="sd">        plotted using a scatter marker and vertical/horizontal lines.</span>
+<span class="sd">    point_estimate_kwargs: dict, optional</span>
+<span class="sd">        Additional keywords passed to ax.vline, ax.hline (matplotlib) or ax.square, Span (bokeh)</span>
+<span class="sd">    point_estimate_marker_kwargs: dict, optional</span>
+<span class="sd">        Additional keywords passed to ax.scatter in point estimate plot. Not available in bokeh</span>
+<span class="sd">    reference_values: dict, optional</span>
+<span class="sd">        Reference values for the plotted variables. The Reference values will be plotted</span>
+<span class="sd">        using a scatter marker</span>
+<span class="sd">    reference_values_kwargs: dict, optional</span>
+<span class="sd">        Additional keywords passed to ax.plot or ax.circle in reference values plot</span>
+<span class="sd">    show: bool, optional</span>
+<span class="sd">        Call backend show function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    axes: matplotlib axes or bokeh figures</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    KDE Pair Plot</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; import arviz as az</span>
+<span class="sd">        &gt;&gt;&gt; centered = az.load_arviz_data(&#39;centered_eight&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; coords = {&#39;school&#39;: [&#39;Choate&#39;, &#39;Deerfield&#39;]}</span>
+<span class="sd">        &gt;&gt;&gt; az.plot_pair(centered,</span>
+<span class="sd">        &gt;&gt;&gt;             var_names=[&#39;theta&#39;, &#39;mu&#39;, &#39;tau&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;             kind=&#39;kde&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;             coords=coords,</span>
+<span class="sd">        &gt;&gt;&gt;             divergences=True,</span>
+<span class="sd">        &gt;&gt;&gt;             textsize=18)</span>
+
+<span class="sd">    Hexbin pair plot</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_pair(centered,</span>
+<span class="sd">        &gt;&gt;&gt;             var_names=[&#39;theta&#39;, &#39;mu&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;             coords=coords,</span>
+<span class="sd">        &gt;&gt;&gt;             textsize=18,</span>
+<span class="sd">        &gt;&gt;&gt;             kind=&#39;hexbin&#39;)</span>
+
+<span class="sd">    Pair plot showing divergences and select variables with regular expressions</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_pair(centered,</span>
+<span class="sd">        ...             var_names=[&#39;^t&#39;, &#39;mu&#39;],</span>
+<span class="sd">        ...             filter_vars=&quot;regex&quot;,</span>
+<span class="sd">        ...             coords=coords,</span>
+<span class="sd">        ...             divergences=True,</span>
+<span class="sd">        ...             textsize=18)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">valid_kinds</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scatter&quot;</span><span class="p">,</span> <span class="s2">&quot;kde&quot;</span><span class="p">,</span> <span class="s2">&quot;hexbin&quot;</span><span class="p">]</span>
+    <span class="n">kind_boolean</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">kind_boolean</span> <span class="o">=</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">valid_kinds</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">kind_boolean</span> <span class="o">=</span> <span class="p">[</span><span class="n">kind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">valid_kinds</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kind</span><span class="p">))]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">kind_boolean</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;Plot type </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> not recognized.&quot;</span> <span class="s2">&quot;Plot type must be in </span><span class="si">{valid_kinds}</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">fill_last</span> <span class="ow">or</span> <span class="n">contour</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;fill_last and contour will be deprecated. Please use kde_kwargs&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">contour</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">contour</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">plot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;plot_kwargs will be deprecated.&quot;</span>
+            <span class="s2">&quot; Please use scatter_kwargs, kde_kwargs and/or hexbin_kwargs&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">scatter_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scatter_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">scatter_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;marker&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="n">scatter_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;lw&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Sets the default zorder higher than zorder of grid, which is 0.5</span>
+    <span class="n">scatter_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;zorder&quot;</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">kde_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kde_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">hexbin_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hexbin_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">divergences_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">divergences_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">divergences_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;marker&quot;</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">)</span>
+    <span class="n">divergences_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;markeredgecolor&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">)</span>
+    <span class="n">divergences_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;C1&quot;</span><span class="p">)</span>
+    <span class="n">divergences_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;lw&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">marginal_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">marginal_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">point_estimate_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">point_estimate_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">point_estimate_marker_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">point_estimate_marker_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Get posterior draws and combine chains</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">convert_to_inference_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">grouped_data</span> <span class="o">=</span> <span class="n">convert_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">)</span>
+    <span class="n">var_names</span> <span class="o">=</span> <span class="n">_var_names</span><span class="p">(</span><span class="n">var_names</span><span class="p">,</span> <span class="n">grouped_data</span><span class="p">,</span> <span class="n">filter_vars</span><span class="p">)</span>
+    <span class="n">flat_var_names</span><span class="p">,</span> <span class="n">infdata_group</span> <span class="o">=</span> <span class="n">xarray_to_ndarray</span><span class="p">(</span>
+        <span class="n">get_coords</span><span class="p">(</span><span class="n">grouped_data</span><span class="p">,</span> <span class="n">coords</span><span class="p">),</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">divergent_data</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">diverging_mask</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Assigning divergence group based on group param</span>
+    <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;posterior&quot;</span><span class="p">:</span>
+        <span class="n">divergent_group</span> <span class="o">=</span> <span class="s2">&quot;sample_stats&quot;</span>
+    <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;prior&quot;</span><span class="p">:</span>
+        <span class="n">divergent_group</span> <span class="o">=</span> <span class="s2">&quot;sample_stats_prior&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">divergences</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># Get diverging draws and combine chains</span>
+    <span class="k">if</span> <span class="n">divergences</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">divergent_group</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">divergent_group</span><span class="p">),</span> <span class="s2">&quot;diverging&quot;</span><span class="p">):</span>
+            <span class="n">divergent_data</span> <span class="o">=</span> <span class="n">convert_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">divergent_group</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">diverging_mask</span> <span class="o">=</span> <span class="n">xarray_to_ndarray</span><span class="p">(</span>
+                <span class="n">divergent_data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;diverging&quot;</span><span class="p">,),</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">diverging_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">diverging_mask</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">divergences</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Divergences data not found, plotting without divergences. &quot;</span>
+                <span class="s2">&quot;Make sure the sample method provides divergences data and &quot;</span>
+                <span class="s2">&quot;that it is present in the `diverging` field of `sample_stats` &quot;</span>
+                <span class="s2">&quot;or `sample_stats_prior` or set divergences=False&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">gridsize</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="n">gridsize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">infdata_group</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mf">0.35</span><span class="p">)</span>
+
+    <span class="n">numvars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">flat_var_names</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">numvars</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Number of variables to be plotted must be 2 or greater.&quot;</span><span class="p">)</span>
+
+    <span class="n">pairplot_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">infdata_group</span><span class="o">=</span><span class="n">infdata_group</span><span class="p">,</span>
+        <span class="n">numvars</span><span class="o">=</span><span class="n">numvars</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+        <span class="n">textsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+        <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">,</span>
+        <span class="n">scatter_kwargs</span><span class="o">=</span><span class="n">scatter_kwargs</span><span class="p">,</span>
+        <span class="n">kde_kwargs</span><span class="o">=</span><span class="n">kde_kwargs</span><span class="p">,</span>
+        <span class="n">hexbin_kwargs</span><span class="o">=</span><span class="n">hexbin_kwargs</span><span class="p">,</span>
+        <span class="n">contour</span><span class="o">=</span><span class="n">contour</span><span class="p">,</span>
+        <span class="n">fill_last</span><span class="o">=</span><span class="n">fill_last</span><span class="p">,</span>
+        <span class="n">gridsize</span><span class="o">=</span><span class="n">gridsize</span><span class="p">,</span>
+        <span class="n">colorbar</span><span class="o">=</span><span class="n">colorbar</span><span class="p">,</span>
+        <span class="n">divergences</span><span class="o">=</span><span class="n">divergences</span><span class="p">,</span>
+        <span class="n">diverging_mask</span><span class="o">=</span><span class="n">diverging_mask</span><span class="p">,</span>
+        <span class="n">divergences_kwargs</span><span class="o">=</span><span class="n">divergences_kwargs</span><span class="p">,</span>
+        <span class="n">flat_var_names</span><span class="o">=</span><span class="n">flat_var_names</span><span class="p">,</span>
+        <span class="n">backend_kwargs</span><span class="o">=</span><span class="n">backend_kwargs</span><span class="p">,</span>
+        <span class="n">marginal_kwargs</span><span class="o">=</span><span class="n">marginal_kwargs</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
+        <span class="n">marginals</span><span class="o">=</span><span class="n">marginals</span><span class="p">,</span>
+        <span class="n">point_estimate</span><span class="o">=</span><span class="n">point_estimate</span><span class="p">,</span>
+        <span class="n">point_estimate_kwargs</span><span class="o">=</span><span class="n">point_estimate_kwargs</span><span class="p">,</span>
+        <span class="n">point_estimate_marker_kwargs</span><span class="o">=</span><span class="n">point_estimate_marker_kwargs</span><span class="p">,</span>
+        <span class="n">reference_values</span><span class="o">=</span><span class="n">reference_values</span><span class="p">,</span>
+        <span class="n">reference_values_kwargs</span><span class="o">=</span><span class="n">reference_values_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.backend&quot;</span><span class="p">]</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">:</span>
+        <span class="n">pairplot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gridsize&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">pairplot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;colorbar&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">pairplot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;divergences_kwargs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">pairplot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;hexbin_values&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">pairplot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;scatter_kwargs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">point_estimate_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;line_color&quot;</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">)</span>
+        <span class="n">point_estimate_marker_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;line_color&quot;</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">point_estimate_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;C1&quot;</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Add backend kwargs</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">get_plotting_function</span><span class="p">(</span><span class="s2">&quot;plot_pair&quot;</span><span class="p">,</span> <span class="s2">&quot;pairplot&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">pairplot_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+arviz.make\_ufunc
+=================
+
+.. currentmodule:: arviz
+
+.. autofunction:: make_ufunc

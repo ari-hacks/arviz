@@ -1,0 +1,17 @@
+
+.. _mpl_plot_ess_quantile:
+
+
+ESS Quantile Plot
+=================
+
+
+
+.. image:: _images/mpl_plot_ess_quantile.png
+
+**Python source code:** :download:`[download source: mpl_plot_ess_quantile.py]<mpl_plot_ess_quantile.py>`
+
+**API documentation:** `plot_ess <../../generated/arviz.plot_ess>`_
+
+.. literalinclude:: mpl_plot_ess_quantile.py
+    :lines: 7-

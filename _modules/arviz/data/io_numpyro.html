@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.data.io_numpyro &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.data.io_numpyro</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;NumPyro-specific conversion code.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">.inference_data</span> <span class="kn">import</span> <span class="n">InferenceData</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">requires</span><span class="p">,</span> <span class="n">dict_to_dataset</span><span class="p">,</span> <span class="n">generate_dims_coords</span><span class="p">,</span> <span class="n">make_attrs</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">NumPyroConverter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Encapsulate NumPyro specific logic.&quot;&quot;&quot;</span>
+
+    <span class="c1"># pylint: disable=too-many-instance-attributes</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: Optional[callable]</span>
+    <span class="n">nchains</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: int</span>
+    <span class="n">ndraws</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: int</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">posterior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">posterior_predictive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">constant_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">predictions_constant_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pred_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_chains</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert NumPyro data into an InferenceData object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        posterior : numpyro.mcmc.MCMC</span>
+<span class="sd">            Fitted MCMC object from NumPyro</span>
+<span class="sd">        prior: dict</span>
+<span class="sd">            Prior samples from a NumPyro model</span>
+<span class="sd">        posterior_predictive : dict</span>
+<span class="sd">            Posterior predictive samples for the posterior</span>
+<span class="sd">        predictions: dict</span>
+<span class="sd">            Out of sample predictions</span>
+<span class="sd">        constant_data: dict</span>
+<span class="sd">            Dictionary containing constant data variables mapped to their values.</span>
+<span class="sd">        predictions_constant_data: dict</span>
+<span class="sd">            Constant data used for out-of-sample predictions.</span>
+<span class="sd">        coords : dict[str] -&gt; list[str]</span>
+<span class="sd">            Map of dimensions to coordinates</span>
+<span class="sd">        dims : dict[str] -&gt; list[str]</span>
+<span class="sd">            Map variable names to their coordinates</span>
+<span class="sd">        pred_dims: dict</span>
+<span class="sd">            Dims for predictions data. Map variable names to their coordinates.</span>
+<span class="sd">        num_chains: int</span>
+<span class="sd">            Number of chains used for sampling. Ignored if posterior is present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">jax</span>
+        <span class="kn">import</span> <span class="nn">numpyro</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">posterior</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">posterior_predictive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="n">predictions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constant_data</span> <span class="o">=</span> <span class="n">constant_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions_constant_data</span> <span class="o">=</span> <span class="n">predictions_constant_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dims</span> <span class="o">=</span> <span class="n">dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_dims</span> <span class="o">=</span> <span class="n">pred_dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span> <span class="o">=</span> <span class="n">numpyro</span>
+
+        <span class="k">def</span> <span class="nf">arbitrary_element</span><span class="p">(</span><span class="n">dct</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">dct</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="n">posterior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">get_samples</span><span class="p">(</span><span class="n">group_by_chain</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="c1"># handle the case we run MCMC with a general potential_fn</span>
+                <span class="c1"># (instead of a NumPyro model) whose args is not a dictionary</span>
+                <span class="c1"># (e.g. f(x) = x ** 2)</span>
+                <span class="n">tree_flatten_samples</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">tree_flatten</span><span class="p">(</span><span class="n">samples</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;Param:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">jax</span><span class="o">.</span><span class="n">device_get</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tree_flatten_samples</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="n">samples</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nchains</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndraws</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">num_chains</span><span class="p">,</span> <span class="n">posterior</span><span class="o">.</span><span class="n">num_samples</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">model</span>
+            <span class="c1"># model arguments and keyword arguments</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">_args</span>  <span class="c1"># pylint: disable=protected-access</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">_kwargs</span>  <span class="c1"># pylint: disable=protected-access</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nchains</span> <span class="o">=</span> <span class="n">num_chains</span>
+            <span class="n">get_from</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">get_from</span> <span class="o">=</span> <span class="n">predictions</span>
+            <span class="k">elif</span> <span class="n">posterior_predictive</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">get_from</span> <span class="o">=</span> <span class="n">posterior_predictive</span>
+            <span class="k">elif</span> <span class="n">prior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">get_from</span> <span class="o">=</span> <span class="n">prior</span>
+            <span class="k">if</span> <span class="n">get_from</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">constant_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">predictions_constant_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;When constructing InferenceData must have at least&quot;</span>
+                    <span class="s2">&quot; one of posterior, prior, posterior_predictive or predictions.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">aelem</span> <span class="o">=</span> <span class="n">arbitrary_element</span><span class="p">(</span><span class="n">get_from</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ndraws</span> <span class="o">=</span> <span class="n">aelem</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">nchains</span>
+
+        <span class="n">observations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">seeded_model</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">trace</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">seeded_model</span><span class="p">)</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span>
+            <span class="n">observations</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">name</span><span class="p">:</span> <span class="n">site</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">trace</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">site</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;sample&quot;</span> <span class="ow">and</span> <span class="n">site</span><span class="p">[</span><span class="s2">&quot;is_observed&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observations</span> <span class="o">=</span> <span class="n">observations</span> <span class="k">if</span> <span class="n">observations</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">posterior_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the posterior to an xarray dataset.&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span>
+        <span class="k">return</span> <span class="n">dict_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">sample_stats_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract sample_stats from NumPyro posterior.&quot;&quot;&quot;</span>
+        <span class="c1"># match PyMC3 stat names</span>
+        <span class="n">rename_key</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;potential_energy&quot;</span><span class="p">:</span> <span class="s2">&quot;lp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;adapt_state.step_size&quot;</span><span class="p">:</span> <span class="s2">&quot;step_size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;num_steps&quot;</span><span class="p">:</span> <span class="s2">&quot;tree_size&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accept_prob&quot;</span><span class="p">:</span> <span class="s2">&quot;mean_tree_accept&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">stat</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">get_extra_fields</span><span class="p">(</span><span class="n">group_by_chain</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="k">continue</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">rename_key</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stat</span><span class="p">,</span> <span class="n">stat</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="s2">&quot;num_steps&quot;</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">dict_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">)</span>
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">log_likelihood_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract log likelihood from NumPyro posterior.&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">get_samples</span><span class="p">(</span><span class="n">group_by_chain</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">log_likelihood_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="o">.</span><span class="n">infer</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">obs_name</span><span class="p">,</span> <span class="n">log_like</span> <span class="ow">in</span> <span class="n">log_likelihood_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nchains</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndraws</span><span class="p">)</span> <span class="o">+</span> <span class="n">log_like</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">obs_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">log_like</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dict_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">translate_posterior_predictive_dict_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dct</span><span class="p">,</span> <span class="n">dims</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert posterior_predictive or prediction samples to xarray.&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">ary</span> <span class="ow">in</span> <span class="n">dct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">ary</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">if</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nchains</span> <span class="ow">and</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndraws</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">ary</span>
+            <span class="k">elif</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nchains</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndraws</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">ary</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nchains</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndraws</span><span class="p">,</span> <span class="o">*</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ary</span><span class="p">)</span>
+                <span class="n">_log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;posterior predictive shape not compatible with number of chains and draws. &quot;</span>
+                    <span class="s2">&quot;This can mean that some draws or even whole chains are not represented.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">dict_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">posterior_predictive_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert posterior_predictive samples to xarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_posterior_predictive_dict_to_xarray</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims</span>
+        <span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;predictions&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predictions_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert predictions to xarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_posterior_predictive_dict_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_dims</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">priors_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert prior samples (and if possible prior predictive too) to xarray.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;prior_predictive&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prior_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">prior_predictive_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prior_vars</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prior_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">prior_predictive_vars</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">priors_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">var_names</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;prior&quot;</span><span class="p">,</span> <span class="s2">&quot;prior_predictive&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">prior_vars</span><span class="p">,</span> <span class="n">prior_predictive_vars</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">priors_dict</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">var_names</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">dict_to_dataset</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">},</span>
+                    <span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="p">,</span>
+                    <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                    <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">priors_dict</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;observations&quot;</span><span class="p">)</span>
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">observed_data_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert observed data to xarray.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims</span>
+        <span class="n">observed_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">one_de</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+            <span class="n">val_dims</span> <span class="o">=</span> <span class="n">dims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">val_dims</span><span class="p">,</span> <span class="n">coords</span> <span class="o">=</span> <span class="n">generate_dims_coords</span><span class="p">(</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">val_dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span>
+            <span class="p">)</span>
+            <span class="c1"># filter coords based on the dims</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">((</span><span class="n">key</span><span class="p">,),</span> <span class="n">data</span><span class="o">=</span><span class="n">coords</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">val_dims</span><span class="p">}</span>
+            <span class="n">observed_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">val_dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">data_vars</span><span class="o">=</span><span class="n">observed_data</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">make_attrs</span><span class="p">(</span><span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">convert_constant_data_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dct</span><span class="p">,</span> <span class="n">dims</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert constant_data or predictions_constant_data to xarray.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">constant_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">dct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">one_de</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+            <span class="n">val_dims</span> <span class="o">=</span> <span class="n">dims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">val_dims</span><span class="p">,</span> <span class="n">coords</span> <span class="o">=</span> <span class="n">generate_dims_coords</span><span class="p">(</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">val_dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span>
+            <span class="p">)</span>
+            <span class="c1"># filter coords based on the dims</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">((</span><span class="n">key</span><span class="p">,),</span> <span class="n">data</span><span class="o">=</span><span class="n">coords</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">val_dims</span><span class="p">}</span>
+            <span class="n">constant_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">val_dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">data_vars</span><span class="o">=</span><span class="n">constant_data</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">make_attrs</span><span class="p">(</span><span class="n">library</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numpyro</span><span class="p">))</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;constant_data&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">constant_data_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert constant_data to xarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_constant_data_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constant_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="s2">&quot;predictions_constant_data&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predictions_constant_data_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert predictions_constant_data to xarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_constant_data_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predictions_constant_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_dims</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_inference_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert all available data to an InferenceData object.</span>
+
+<span class="sd">        Note that if groups can not be created (i.e., there is no `trace`, so</span>
+<span class="sd">        the `posterior` and `sample_stats` can not be extracted), then the InferenceData</span>
+<span class="sd">        will not have those groups.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">InferenceData</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="s2">&quot;posterior&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior_to_xarray</span><span class="p">(),</span>
+                <span class="s2">&quot;sample_stats&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_stats_to_xarray</span><span class="p">(),</span>
+                <span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood_to_xarray</span><span class="p">(),</span>
+                <span class="s2">&quot;posterior_predictive&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior_predictive_to_xarray</span><span class="p">(),</span>
+                <span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to_xarray</span><span class="p">(),</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">priors_to_xarray</span><span class="p">(),</span>
+                <span class="s2">&quot;observed_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">observed_data_to_xarray</span><span class="p">(),</span>
+                <span class="s2">&quot;constant_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_data_to_xarray</span><span class="p">(),</span>
+                <span class="s2">&quot;predictions_constant_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions_constant_data_to_xarray</span><span class="p">(),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="from_numpyro"><a class="viewcode-back" href="../../../generated/arviz.from_numpyro.html#arviz.from_numpyro">[docs]</a><span class="k">def</span> <span class="nf">from_numpyro</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">posterior_predictive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">constant_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">predictions_constant_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pred_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_chains</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert NumPyro data into an InferenceData object.</span>
+
+<span class="sd">    For a usage example read the</span>
+<span class="sd">    :doc:`Cookbook section on from_numpyro &lt;/notebooks/InferenceDataCookbook&gt;`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    posterior : numpyro.mcmc.MCMC</span>
+<span class="sd">        Fitted MCMC object from NumPyro</span>
+<span class="sd">    prior: dict</span>
+<span class="sd">        Prior samples from a NumPyro model</span>
+<span class="sd">    posterior_predictive : dict</span>
+<span class="sd">        Posterior predictive samples for the posterior</span>
+<span class="sd">    predictions: dict</span>
+<span class="sd">        Out of sample predictions</span>
+<span class="sd">    constant_data: dict</span>
+<span class="sd">        Dictionary containing constant data variables mapped to their values.</span>
+<span class="sd">    predictions_constant_data: dict</span>
+<span class="sd">        Constant data used for out-of-sample predictions.</span>
+<span class="sd">    coords : dict[str] -&gt; list[str]</span>
+<span class="sd">        Map of dimensions to coordinates</span>
+<span class="sd">    dims : dict[str] -&gt; list[str]</span>
+<span class="sd">        Map variable names to their coordinates</span>
+<span class="sd">    pred_dims: dict</span>
+<span class="sd">        Dims for predictions data. Map variable names to their coordinates.</span>
+<span class="sd">    num_chains: int</span>
+<span class="sd">        Number of chains used for sampling. Ignored if posterior is present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">NumPyroConverter</span><span class="p">(</span>
+        <span class="n">posterior</span><span class="o">=</span><span class="n">posterior</span><span class="p">,</span>
+        <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
+        <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
+        <span class="n">constant_data</span><span class="o">=</span><span class="n">constant_data</span><span class="p">,</span>
+        <span class="n">predictions_constant_data</span><span class="o">=</span><span class="n">predictions_constant_data</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+        <span class="n">pred_dims</span><span class="o">=</span><span class="n">pred_dims</span><span class="p">,</span>
+        <span class="n">num_chains</span><span class="o">=</span><span class="n">num_chains</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_inference_data</span><span class="p">()</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

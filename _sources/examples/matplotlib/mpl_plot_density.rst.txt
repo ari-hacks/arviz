@@ -1,0 +1,17 @@
+
+.. _mpl_plot_density:
+
+
+Density Plot
+============
+
+
+
+.. image:: _images/mpl_plot_density.png
+
+**Python source code:** :download:`[download source: mpl_plot_density.py]<mpl_plot_density.py>`
+
+**API documentation:** `plot_density <../../generated/arviz.plot_density>`_
+
+.. literalinclude:: mpl_plot_density.py
+    :lines: 7-

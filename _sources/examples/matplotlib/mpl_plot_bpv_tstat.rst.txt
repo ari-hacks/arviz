@@ -1,0 +1,17 @@
+
+.. _mpl_plot_bpv_tstat:
+
+
+Bayesian p-value with median T statistic Posterior plot
+=======================================================
+
+
+
+.. image:: _images/mpl_plot_bpv_tstat.png
+
+**Python source code:** :download:`[download source: mpl_plot_bpv_tstat.py]<mpl_plot_bpv_tstat.py>`
+
+**API documentation:** `plot_bpv <../../generated/arviz.plot_bpv>`_
+
+.. literalinclude:: mpl_plot_bpv_tstat.py
+    :lines: 7-

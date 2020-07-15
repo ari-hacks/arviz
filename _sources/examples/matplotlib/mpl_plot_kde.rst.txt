@@ -1,0 +1,17 @@
+
+.. _mpl_plot_kde:
+
+
+KDE Plot
+========
+
+
+
+.. image:: _images/mpl_plot_kde.png
+
+**Python source code:** :download:`[download source: mpl_plot_kde.py]<mpl_plot_kde.py>`
+
+**API documentation:** `plot_kde <../../generated/arviz.plot_kde>`_
+
+.. literalinclude:: mpl_plot_kde.py
+    :lines: 7-

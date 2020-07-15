@@ -1,0 +1,17 @@
+
+.. _mpl_plot_forest_ridge:
+
+
+Ridgeplot
+=========
+
+
+
+.. image:: _images/mpl_plot_forest_ridge.png
+
+**Python source code:** :download:`[download source: mpl_plot_forest_ridge.py]<mpl_plot_forest_ridge.py>`
+
+**API documentation:** `plot_forest <../../generated/arviz.plot_forest>`_
+
+.. literalinclude:: mpl_plot_forest_ridge.py
+    :lines: 7-

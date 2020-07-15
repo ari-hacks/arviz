@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.plots.kdeplot &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.plots.kdeplot</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: disable=unexpected-keyword-arg</span>
+<span class="sd">&quot;&quot;&quot;One-dimensional kernel density estimate plots.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">InferenceData</span>
+<span class="kn">from</span> <span class="nn">..numeric_utils</span> <span class="kn">import</span> <span class="n">_fast_kde</span><span class="p">,</span> <span class="n">_fast_kde_2d</span>
+<span class="kn">from</span> <span class="nn">.plot_utils</span> <span class="kn">import</span> <span class="n">get_plotting_function</span>
+<span class="kn">from</span> <span class="nn">..rcparams</span> <span class="kn">import</span> <span class="n">rcParams</span>
+
+
+<div class="viewcode-block" id="plot_kde"><a class="viewcode-back" href="../../../generated/arviz.plot_kde.html#arviz.plot_kde">[docs]</a><span class="k">def</span> <span class="nf">plot_kde</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">,</span>
+    <span class="n">values2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">rug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">bw</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">rotated</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">contour</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fill_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">textsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">plot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">fill_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">rug_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">contour_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">contourf_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pcolormesh_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">is_circular</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_glyph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;1D or 2D KDE plot taking into account boundary conditions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    values : array-like</span>
+<span class="sd">        Values to plot</span>
+<span class="sd">    values2 : array-like, optional</span>
+<span class="sd">        Values to plot. If present, a 2D KDE will be estimated</span>
+<span class="sd">    cumulative : bool</span>
+<span class="sd">        If true plot the estimated cumulative distribution function. Defaults to False.</span>
+<span class="sd">        Ignored for 2D KDE</span>
+<span class="sd">    rug : bool</span>
+<span class="sd">        If True adds a rugplot. Defaults to False. Ignored for 2D KDE</span>
+<span class="sd">    label : string</span>
+<span class="sd">        Text to include as part of the legend</span>
+<span class="sd">    bw : float</span>
+<span class="sd">        Bandwidth scaling factor for 1D KDE. Should be larger than 0. The higher this number the</span>
+<span class="sd">        smoother the KDE will be. Defaults to 4.5 which is essentially the same as the Scott&#39;s</span>
+<span class="sd">        rule of thumb (the default rule used by SciPy).</span>
+<span class="sd">    quantiles : list</span>
+<span class="sd">        Quantiles in ascending order used to segment the KDE. Use [.25, .5, .75] for quartiles.</span>
+<span class="sd">        Defaults to None.</span>
+<span class="sd">    rotated : bool</span>
+<span class="sd">        Whether to rotate the 1D KDE plot 90 degrees.</span>
+<span class="sd">    contour : bool</span>
+<span class="sd">        If True plot the 2D KDE using contours, otherwise plot a smooth 2D KDE. Defaults to True.</span>
+<span class="sd">    fill_last : bool</span>
+<span class="sd">        If True fill the last contour of the 2D KDE plot. Defaults to False.</span>
+<span class="sd">    textsize: float</span>
+<span class="sd">        Text size scaling factor for labels, titles and lines. If None it will be autoscaled based</span>
+<span class="sd">        on figsize. Not implemented for bokeh backend.</span>
+<span class="sd">    plot_kwargs : dict</span>
+<span class="sd">        Keywords passed to the pdf line of a 1D KDE. See :meth:`mpl:matplotlib.axes.Axes.plot`</span>
+<span class="sd">        or :meth:`bokeh:bokeh.plotting.figure.Figure.line` for a description of accepted values.</span>
+<span class="sd">    fill_kwargs : dict</span>
+<span class="sd">        Keywords passed to the fill under the line (use fill_kwargs={&#39;alpha&#39;: 0} to disable fill).</span>
+<span class="sd">        Ignored for 2D KDE</span>
+<span class="sd">    rug_kwargs : dict</span>
+<span class="sd">        Keywords passed to the rug plot. Ignored if rug=False or for 2D KDE</span>
+<span class="sd">        Use `space` keyword (float) to control the position of the rugplot. The larger this number</span>
+<span class="sd">        the lower the rugplot.</span>
+<span class="sd">    contour_kwargs : dict</span>
+<span class="sd">        Keywords passed to ax.contour to draw contour lines. Ignored for 1D KDE.</span>
+<span class="sd">    contourf_kwargs : dict</span>
+<span class="sd">        Keywords passed to ax.contourf to draw filled contours. Ignored for 1D KDE.</span>
+<span class="sd">    pcolormesh_kwargs : dict</span>
+<span class="sd">        Keywords passed to ax.pcolormesh. Ignored for 1D KDE.</span>
+<span class="sd">    is_circular : {False, True, &quot;radians&quot;, &quot;degrees&quot;}. Default False.</span>
+<span class="sd">        Select input type {&quot;radians&quot;, &quot;degrees&quot;} for circular histogram or KDE plot. If True,</span>
+<span class="sd">        default input type is &quot;radians&quot;.</span>
+<span class="sd">    ax: axes, optional</span>
+<span class="sd">        Matplotlib axes or bokeh figures.</span>
+<span class="sd">    legend : bool</span>
+<span class="sd">        Add legend to the figure. By default True.</span>
+<span class="sd">    backend: str, optional</span>
+<span class="sd">        Select plotting backend {&quot;matplotlib&quot;,&quot;bokeh&quot;}. Default &quot;matplotlib&quot;.</span>
+<span class="sd">    backend_kwargs: bool, optional</span>
+<span class="sd">        These are kwargs specific to the backend being used. For additional documentation</span>
+<span class="sd">        check the plotting method of the backend.</span>
+<span class="sd">    show : bool, optional</span>
+<span class="sd">        Call backend show function.</span>
+<span class="sd">    return_glyph : bool, optional</span>
+<span class="sd">        Internal argument to return glyphs for bokeh</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    axes : matplotlib.Axes or bokeh.plotting.Figure</span>
+<span class="sd">        Object containing the kde plot</span>
+<span class="sd">    glyphs : list, optional</span>
+<span class="sd">        Bokeh glyphs present in plot.  Only provided if ``return_glyph`` is True.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Plot default KDE</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; import arviz as az</span>
+<span class="sd">        &gt;&gt;&gt; non_centered = az.load_arviz_data(&#39;non_centered_eight&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; mu_posterior = np.concatenate(non_centered.posterior[&quot;mu&quot;].values)</span>
+<span class="sd">        &gt;&gt;&gt; tau_posterior = np.concatenate(non_centered.posterior[&quot;tau&quot;].values)</span>
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(mu_posterior)</span>
+
+
+<span class="sd">    Plot KDE with rugplot</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(mu_posterior, rug=True)</span>
+
+
+<span class="sd">    Plot a cumulative distribution</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(mu_posterior, cumulative=True)</span>
+
+
+
+<span class="sd">    Rotate plot 90 degrees</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(mu_posterior, rotated=True)</span>
+
+
+<span class="sd">    Plot 2d contour KDE</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(mu_posterior, values2=tau_posterior)</span>
+
+
+<span class="sd">    Plot 2d contour KDE, without filling and countour lines using viridis cmap</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(mu_posterior, values2=tau_posterior,</span>
+<span class="sd">        ...             contour_kwargs={&quot;colors&quot;:None, &quot;cmap&quot;:plt.cm.viridis},</span>
+<span class="sd">        ...             contourf_kwargs={&quot;alpha&quot;:0});</span>
+
+<span class="sd">    Plot 2d contour KDE, set the number of levels to 3.</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(</span>
+<span class="sd">        ...     mu_posterior, values2=tau_posterior,</span>
+<span class="sd">        ...     contour_kwargs={&quot;levels&quot;:3}, contourf_kwargs={&quot;levels&quot;:3}</span>
+<span class="sd">        ... );</span>
+
+<span class="sd">    Plot 2d smooth KDE</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_kde(mu_posterior, values2=tau_posterior, contour=False)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Xarray dataset object detected.Use plot_posterior, plot_density, plot_joint&quot;</span>
+            <span class="s2">&quot;or plot_pair instead of plot_kde&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">InferenceData</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot; Inference Data object detected. Use plot_posterior &quot;</span>
+            <span class="s2">&quot;or plot_pair instead of plot_kde&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">values2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">density</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">_fast_kde</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">cumulative</span><span class="p">,</span> <span class="n">bw</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cumulative</span><span class="p">:</span>
+            <span class="n">density_q</span> <span class="o">=</span> <span class="n">density</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">density_q</span> <span class="o">=</span> <span class="n">density</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">/</span> <span class="n">density</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="c1"># This is just a hack placeholder for now</span>
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">gridsize</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">gridsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span> <span class="k">if</span> <span class="n">contour</span> <span class="k">else</span> <span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+        <span class="n">density</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">_fast_kde_2d</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">values2</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="n">gridsize</span><span class="p">)</span>
+
+        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">density_q</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+
+    <span class="n">kde_plot_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="c1"># Internal API</span>
+        <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span>
+        <span class="n">lower</span><span class="o">=</span><span class="n">lower</span><span class="p">,</span>
+        <span class="n">upper</span><span class="o">=</span><span class="n">upper</span><span class="p">,</span>
+        <span class="n">density_q</span><span class="o">=</span><span class="n">density_q</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span>
+        <span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="o">=</span><span class="n">ymin</span><span class="p">,</span>
+        <span class="n">ymax</span><span class="o">=</span><span class="n">ymax</span><span class="p">,</span>
+        <span class="n">gridsize</span><span class="o">=</span><span class="n">gridsize</span><span class="p">,</span>
+        <span class="c1"># User Facing API that can be simplified</span>
+        <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">values2</span><span class="o">=</span><span class="n">values2</span><span class="p">,</span>
+        <span class="n">rug</span><span class="o">=</span><span class="n">rug</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+        <span class="n">rotated</span><span class="o">=</span><span class="n">rotated</span><span class="p">,</span>
+        <span class="n">contour</span><span class="o">=</span><span class="n">contour</span><span class="p">,</span>
+        <span class="n">fill_last</span><span class="o">=</span><span class="n">fill_last</span><span class="p">,</span>
+        <span class="n">textsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">,</span>
+        <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">,</span>
+        <span class="n">fill_kwargs</span><span class="o">=</span><span class="n">fill_kwargs</span><span class="p">,</span>
+        <span class="n">rug_kwargs</span><span class="o">=</span><span class="n">rug_kwargs</span><span class="p">,</span>
+        <span class="n">contour_kwargs</span><span class="o">=</span><span class="n">contour_kwargs</span><span class="p">,</span>
+        <span class="n">contourf_kwargs</span><span class="o">=</span><span class="n">contourf_kwargs</span><span class="p">,</span>
+        <span class="n">pcolormesh_kwargs</span><span class="o">=</span><span class="n">pcolormesh_kwargs</span><span class="p">,</span>
+        <span class="n">is_circular</span><span class="o">=</span><span class="n">is_circular</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span>
+        <span class="n">backend_kwargs</span><span class="o">=</span><span class="n">backend_kwargs</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
+        <span class="n">return_glyph</span><span class="o">=</span><span class="n">return_glyph</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.backend&quot;</span><span class="p">]</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">:</span>
+        <span class="n">kde_plot_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;textsize&quot;</span><span class="p">)</span>
+        <span class="n">kde_plot_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">)</span>
+        <span class="n">kde_plot_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;legend&quot;</span><span class="p">)</span>
+        <span class="n">kde_plot_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;is_circular&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">kde_plot_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;return_glyph&quot;</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Add backend kwargs</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">get_plotting_function</span><span class="p">(</span><span class="s2">&quot;plot_kde&quot;</span><span class="p">,</span> <span class="s2">&quot;kdeplot&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kde_plot_args</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

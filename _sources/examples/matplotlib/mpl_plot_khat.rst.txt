@@ -1,0 +1,17 @@
+
+.. _mpl_plot_khat:
+
+
+Pareto Shape Plot
+=================
+
+
+
+.. image:: _images/mpl_plot_khat.png
+
+**Python source code:** :download:`[download source: mpl_plot_khat.py]<mpl_plot_khat.py>`
+
+**API documentation:** `plot_khat <../../generated/arviz.plot_khat>`_
+
+.. literalinclude:: mpl_plot_khat.py
+    :lines: 7-

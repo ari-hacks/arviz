@@ -1,0 +1,17 @@
+
+.. _mpl_plot_bpv:
+
+
+Bayesian p-value Posterior plot
+===============================
+
+
+
+.. image:: _images/mpl_plot_bpv.png
+
+**Python source code:** :download:`[download source: mpl_plot_bpv.py]<mpl_plot_bpv.py>`
+
+**API documentation:** `plot_bpv <../../generated/arviz.plot_bpv>`_
+
+.. literalinclude:: mpl_plot_bpv.py
+    :lines: 7-

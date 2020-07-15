@@ -1,0 +1,6 @@
+arviz.convert\_to\_inference\_data
+==================================
+
+.. currentmodule:: arviz
+
+.. autofunction:: convert_to_inference_data

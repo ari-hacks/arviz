@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.plot_kde &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="arviz.plot_khat" href="arviz.plot_khat.html" />
+    <link rel="prev" title="arviz.plot_joint" href="arviz.plot_joint.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-plot-kde">
+<h1>arviz.plot_kde<a class="headerlink" href="#arviz-plot-kde" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="arviz.plot_kde">
+<code class="sig-prename descclassname">arviz.</code><code class="sig-name descname">plot_kde</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">values2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cumulative</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">rug</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bw</span><span class="o">=</span><span class="default_value">4.5</span></em>, <em class="sig-param"><span class="n">quantiles</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rotated</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">contour</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fill_last</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">textsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fill_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rug_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contour_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">contourf_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pcolormesh_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">is_circular</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">legend</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_glyph</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/arviz/plots/kdeplot.html#plot_kde"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#arviz.plot_kde" title="Permalink to this definition">¶</a></dt>
+<dd><p>1D or 2D KDE plot taking into account boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values</strong><span class="classifier">array-like</span></dt><dd><p>Values to plot</p>
+</dd>
+<dt><strong>values2</strong><span class="classifier">array-like, optional</span></dt><dd><p>Values to plot. If present, a 2D KDE will be estimated</p>
+</dd>
+<dt><strong>cumulative</strong><span class="classifier">bool</span></dt><dd><p>If true plot the estimated cumulative distribution function. Defaults to False.
+Ignored for 2D KDE</p>
+</dd>
+<dt><strong>rug</strong><span class="classifier">bool</span></dt><dd><p>If True adds a rugplot. Defaults to False. Ignored for 2D KDE</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">string</span></dt><dd><p>Text to include as part of the legend</p>
+</dd>
+<dt><strong>bw</strong><span class="classifier">float</span></dt><dd><p>Bandwidth scaling factor for 1D KDE. Should be larger than 0. The higher this number the
+smoother the KDE will be. Defaults to 4.5 which is essentially the same as the Scott’s
+rule of thumb (the default rule used by SciPy).</p>
+</dd>
+<dt><strong>quantiles</strong><span class="classifier">list</span></dt><dd><p>Quantiles in ascending order used to segment the KDE. Use [.25, .5, .75] for quartiles.
+Defaults to None.</p>
+</dd>
+<dt><strong>rotated</strong><span class="classifier">bool</span></dt><dd><p>Whether to rotate the 1D KDE plot 90 degrees.</p>
+</dd>
+<dt><strong>contour</strong><span class="classifier">bool</span></dt><dd><p>If True plot the 2D KDE using contours, otherwise plot a smooth 2D KDE. Defaults to True.</p>
+</dd>
+<dt><strong>fill_last</strong><span class="classifier">bool</span></dt><dd><p>If True fill the last contour of the 2D KDE plot. Defaults to False.</p>
+</dd>
+<dt><strong>textsize: float</strong></dt><dd><p>Text size scaling factor for labels, titles and lines. If None it will be autoscaled based
+on figsize. Not implemented for bokeh backend.</p>
+</dd>
+<dt><strong>plot_kwargs</strong><span class="classifier">dict</span></dt><dd><p>Keywords passed to the pdf line of a 1D KDE. See <a class="reference external" href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="(in Matplotlib v3.2.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.plot()</span></code></a>
+or <a class="reference external" href="https://docs.bokeh.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.line" title="(in Bokeh v2.1.1)"><code class="docutils literal notranslate"><span class="pre">bokeh.plotting.figure.Figure.line()</span></code></a> for a description of accepted values.</p>
+</dd>
+<dt><strong>fill_kwargs</strong><span class="classifier">dict</span></dt><dd><p>Keywords passed to the fill under the line (use fill_kwargs={‘alpha’: 0} to disable fill).
+Ignored for 2D KDE</p>
+</dd>
+<dt><strong>rug_kwargs</strong><span class="classifier">dict</span></dt><dd><p>Keywords passed to the rug plot. Ignored if rug=False or for 2D KDE
+Use <cite>space</cite> keyword (float) to control the position of the rugplot. The larger this number
+the lower the rugplot.</p>
+</dd>
+<dt><strong>contour_kwargs</strong><span class="classifier">dict</span></dt><dd><p>Keywords passed to ax.contour to draw contour lines. Ignored for 1D KDE.</p>
+</dd>
+<dt><strong>contourf_kwargs</strong><span class="classifier">dict</span></dt><dd><p>Keywords passed to ax.contourf to draw filled contours. Ignored for 1D KDE.</p>
+</dd>
+<dt><strong>pcolormesh_kwargs</strong><span class="classifier">dict</span></dt><dd><p>Keywords passed to ax.pcolormesh. Ignored for 1D KDE.</p>
+</dd>
+<dt><strong>is_circular</strong><span class="classifier">{False, True, “radians”, “degrees”}. Default False.</span></dt><dd><p>Select input type {“radians”, “degrees”} for circular histogram or KDE plot. If True,
+default input type is “radians”.</p>
+</dd>
+<dt><strong>ax: axes, optional</strong></dt><dd><p>Matplotlib axes or bokeh figures.</p>
+</dd>
+<dt><strong>legend</strong><span class="classifier">bool</span></dt><dd><p>Add legend to the figure. By default True.</p>
+</dd>
+<dt><strong>backend: str, optional</strong></dt><dd><p>Select plotting backend {“matplotlib”,”bokeh”}. Default “matplotlib”.</p>
+</dd>
+<dt><strong>backend_kwargs: bool, optional</strong></dt><dd><p>These are kwargs specific to the backend being used. For additional documentation
+check the plotting method of the backend.</p>
+</dd>
+<dt><strong>show</strong><span class="classifier">bool, optional</span></dt><dd><p>Call backend show function.</p>
+</dd>
+<dt><strong>return_glyph</strong><span class="classifier">bool, optional</span></dt><dd><p>Internal argument to return glyphs for bokeh</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>axes</strong><span class="classifier">matplotlib.Axes or bokeh.plotting.Figure</span></dt><dd><p>Object containing the kde plot</p>
+</dd>
+<dt><strong>glyphs</strong><span class="classifier">list, optional</span></dt><dd><p>Bokeh glyphs present in plot.  Only provided if <code class="docutils literal notranslate"><span class="pre">return_glyph</span></code> is True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot default KDE</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">non_centered</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">load_arviz_data</span><span class="p">(</span><span class="s1">&#39;non_centered_eight&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_posterior</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">non_centered</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tau_posterior</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">non_centered</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;tau&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">mu_posterior</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-1.png" src="../_images/arviz-plot_kde-1.png" />
+</div>
+<p>Plot KDE with rugplot</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">mu_posterior</span><span class="p">,</span> <span class="n">rug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-2.png" src="../_images/arviz-plot_kde-2.png" />
+</div>
+<p>Plot a cumulative distribution</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">mu_posterior</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-3.png" src="../_images/arviz-plot_kde-3.png" />
+</div>
+<p>Rotate plot 90 degrees</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">mu_posterior</span><span class="p">,</span> <span class="n">rotated</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-4.png" src="../_images/arviz-plot_kde-4.png" />
+</div>
+<p>Plot 2d contour KDE</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">mu_posterior</span><span class="p">,</span> <span class="n">values2</span><span class="o">=</span><span class="n">tau_posterior</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-5.png" src="../_images/arviz-plot_kde-5.png" />
+</div>
+<p>Plot 2d contour KDE, without filling and countour lines using viridis cmap</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">mu_posterior</span><span class="p">,</span> <span class="n">values2</span><span class="o">=</span><span class="n">tau_posterior</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">contour_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;colors&quot;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;cmap&quot;</span><span class="p">:</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">},</span>
+<span class="gp">... </span>            <span class="n">contourf_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">});</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-6.png" src="../_images/arviz-plot_kde-6.png" />
+</div>
+<p>Plot 2d contour KDE, set the number of levels to 3.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">mu_posterior</span><span class="p">,</span> <span class="n">values2</span><span class="o">=</span><span class="n">tau_posterior</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">contour_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;levels&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">},</span> <span class="n">contourf_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;levels&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-7.png" src="../_images/arviz-plot_kde-7.png" />
+</div>
+<p>Plot 2d smooth KDE</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">mu_posterior</span><span class="p">,</span> <span class="n">values2</span><span class="o">=</span><span class="n">tau_posterior</span><span class="p">,</span> <span class="n">contour</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<img alt="../_images/arviz-plot_kde-8.png" src="../_images/arviz-plot_kde-8.png" />
+</div>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/generated/arviz.plot_kde.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

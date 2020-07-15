@@ -1,0 +1,27 @@
+arviz.InferenceData
+===================
+
+.. currentmodule:: arviz
+
+.. autoclass:: InferenceData
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+
+   
+      InferenceData.__init__
+      InferenceData.from_netcdf
+      InferenceData.map
+      InferenceData.sel
+      InferenceData.to_netcdf
+   
+   
+
+   
+   
+   

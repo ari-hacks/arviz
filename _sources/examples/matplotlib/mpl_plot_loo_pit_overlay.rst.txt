@@ -1,0 +1,17 @@
+
+.. _mpl_plot_loo_pit_overlay:
+
+
+LOO-PIT Overlay Plot
+====================
+
+
+
+.. image:: _images/mpl_plot_loo_pit_overlay.png
+
+**Python source code:** :download:`[download source: mpl_plot_loo_pit_overlay.py]<mpl_plot_loo_pit_overlay.py>`
+
+**API documentation:** `plot_loo_pit <../../generated/arviz.plot_loo_pit>`_
+
+.. literalinclude:: mpl_plot_loo_pit_overlay.py
+    :lines: 7-

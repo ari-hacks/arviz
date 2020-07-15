@@ -1,0 +1,17 @@
+
+.. _mpl_plot_compare:
+
+
+Compare Plot
+============
+
+
+
+.. image:: _images/mpl_plot_compare.png
+
+**Python source code:** :download:`[download source: mpl_plot_compare.py]<mpl_plot_compare.py>`
+
+**API documentation:** `plot_compare <../../generated/arviz.plot_compare>`_
+
+.. literalinclude:: mpl_plot_compare.py
+    :lines: 7-

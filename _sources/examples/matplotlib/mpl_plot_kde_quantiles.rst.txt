@@ -1,0 +1,17 @@
+
+.. _mpl_plot_kde_quantiles:
+
+
+KDE quantiles
+=============
+
+
+
+.. image:: _images/mpl_plot_kde_quantiles.png
+
+**Python source code:** :download:`[download source: mpl_plot_kde_quantiles.py]<mpl_plot_kde_quantiles.py>`
+
+**API documentation:** `plot_kde <../../generated/arviz.plot_kde>`_
+
+.. literalinclude:: mpl_plot_kde_quantiles.py
+    :lines: 7-

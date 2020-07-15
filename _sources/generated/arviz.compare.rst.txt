@@ -1,0 +1,6 @@
+arviz.compare
+=============
+
+.. currentmodule:: arviz
+
+.. autofunction:: compare

@@ -1,0 +1,17 @@
+
+.. _mpl_plot_posterior:
+
+
+Posterior Plot
+==============
+
+
+
+.. image:: _images/mpl_plot_posterior.png
+
+**Python source code:** :download:`[download source: mpl_plot_posterior.py]<mpl_plot_posterior.py>`
+
+**API documentation:** `plot_posterior <../../generated/arviz.plot_posterior>`_
+
+.. literalinclude:: mpl_plot_posterior.py
+    :lines: 7-

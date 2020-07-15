@@ -1,0 +1,17 @@
+
+.. _mpl_plot_dist:
+
+
+Dist Plot
+=========
+
+
+
+.. image:: _images/mpl_plot_dist.png
+
+**Python source code:** :download:`[download source: mpl_plot_dist.py]<mpl_plot_dist.py>`
+
+**API documentation:** `plot_dist <../../generated/arviz.plot_dist>`_
+
+.. literalinclude:: mpl_plot_dist.py
+    :lines: 7-

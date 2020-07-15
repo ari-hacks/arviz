@@ -1,0 +1,6 @@
+arviz.hpd
+=========
+
+.. currentmodule:: arviz
+
+.. autofunction:: hpd

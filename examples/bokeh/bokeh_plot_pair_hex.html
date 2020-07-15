@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexbin PairPlot &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="KDE Pair Plot" href="bokeh_plot_pair_kde.html" />
+    <link rel="prev" title="Pair Plot" href="bokeh_plot_pair.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><span><img src="../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../index.html">Gallery</a></li>
+                <li><a href="../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../api.html">API</a></li>
+                <li><a href="../../usage.html">Usage</a></li>
+                <li><a href="../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="hexbin-pairplot">
+<span id="bokeh-plot-pair-hex"></span><h1>Hexbin PairPlot<a class="headerlink" href="#hexbin-pairplot" title="Permalink to this headline">¶</a></h1>
+
+<script src="bokeh-plot-fa692b608f2d4094ba0be66a5fdf9b79-external-examples-bokeh-bokeh_plot_pair_hex.js" id="34a7cfee-c11e-43de-b886-5b4e3d0d6494"></script><p><strong>Python source code:</strong> <a class="reference download internal" download="" href="../../_downloads/8dfb1d209c9287c9b6b3a45f2e8a35e8/bokeh_plot_pair_hex.py"><code class="xref download docutils literal notranslate"><span class="pre">[download</span> <span class="pre">source:</span> <span class="pre">bokeh_plot_pair_hex.py]</span></code></a></p>
+<p><strong>API documentation:</strong> <a class="reference external" href="../../generated/arviz.plot_pair">plot_pair</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+
+<span class="n">centered</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">load_arviz_data</span><span class="p">(</span><span class="s2">&quot;centered_eight&quot;</span><span class="p">)</span>
+
+<span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;school&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Choate&quot;</span><span class="p">,</span> <span class="s2">&quot;Deerfield&quot;</span><span class="p">]}</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_pair</span><span class="p">(</span>
+    <span class="n">centered</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;theta&quot;</span><span class="p">,</span> <span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">],</span>
+    <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;hexbin&quot;</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">divergences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;bokeh&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../../_sources/examples/bokeh/bokeh_plot_pair_hex.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

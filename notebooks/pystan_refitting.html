@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refitting PyStan models with ArviZ &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="Introduction.html">Quickstart</a></li>
+                <li><a href="InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Refitting-PyStan-models-with-ArviZ">
+<h1>Refitting PyStan models with ArviZ<a class="headerlink" href="#Refitting-PyStan-models-with-ArviZ" title="Permalink to this headline">¶</a></h1>
+<p>ArviZ is backend agnostic and therefore does not sample directly. In order to take advantage of algorithms that require refitting models several times, ArviZ uses <code class="docutils literal notranslate"><span class="pre">SamplingWrappers</span></code> to convert the API of the sampling backend to a common set of functions. Hence, functions like Leave Future Out Cross Validation can be used in ArviZ independently of the sampling backend used.</p>
+<p>Below there is one example of <code class="docutils literal notranslate"><span class="pre">SamplingWrapper</span></code> usage for PyStan.</p>
+<p>Before starting, it is important to note that PyStan cannot call the C++ functions it uses. Therefore, the <strong>code</strong> of the model must be slightly modified in order to be compatible with the cross validation refitting functions.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">pystan</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<p>For the example we will use a linear regression.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span>
+
+<span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">b0</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span>
+<span class="n">ydata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">b1</span> <span class="o">*</span> <span class="n">xdata</span> <span class="o">+</span> <span class="n">b0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&lt;matplotlib.lines.Line2D at 0x1258dee10&gt;]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_pystan_refitting_5_1.png" src="../_images/notebooks_pystan_refitting_5_1.png" />
+</div>
+</div>
+<p>Now we will write the Stan code, keeping in mind that it must be able to compute the pointwise log likelihood on excluded data, that is, data which is not used to fit the model. Thus, the backbone of the code must look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="p">{</span>
+    <span class="n">data_for_fitting</span>
+    <span class="n">excluded_data</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+<span class="n">model</span> <span class="p">{</span>
+    <span class="o">//</span> <span class="n">fit</span> <span class="n">against</span> <span class="n">data_for_fitting</span>
+   <span class="o">...</span>
+<span class="p">}</span>
+<span class="n">generated</span> <span class="n">quantities</span> <span class="p">{</span>
+    <span class="o">....</span>
+    <span class="n">log_lik</span> <span class="k">for</span> <span class="n">data_for_fitting</span>
+    <span class="n">log_lik_excluded</span> <span class="k">for</span> <span class="n">excluded_data</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">refit_lr_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">data {</span>
+<span class="s2">  // Define data for fitting</span>
+<span class="s2">  int&lt;lower=0&gt; N;</span>
+<span class="s2">  vector[N] x;</span>
+<span class="s2">  vector[N] y;</span>
+<span class="s2">  // Define excluded data. It will not be used when fitting.</span>
+<span class="s2">  int&lt;lower=0&gt; N_ex;</span>
+<span class="s2">  vector[N_ex] x_ex;</span>
+<span class="s2">  vector[N_ex] y_ex;</span>
+<span class="s2">}</span>
+
+<span class="s2">parameters {</span>
+<span class="s2">  real b0;</span>
+<span class="s2">  real b1;</span>
+<span class="s2">  real&lt;lower=0&gt; sigma_e;</span>
+<span class="s2">}</span>
+
+<span class="s2">model {</span>
+<span class="s2">  b0 ~ normal(0, 10);</span>
+<span class="s2">  b1 ~ normal(0, 10);</span>
+<span class="s2">  sigma_e ~ normal(0, 10);</span>
+<span class="s2">  for (i in 1:N) {</span>
+<span class="s2">    y[i] ~ normal(b0 + b1 * x[i], sigma_e);  // use only data for fitting</span>
+<span class="s2">  }</span>
+
+<span class="s2">}</span>
+
+<span class="s2">generated quantities {</span>
+<span class="s2">    vector[N] log_lik;</span>
+<span class="s2">    vector[N_ex] log_lik_ex;</span>
+<span class="s2">    vector[N] y_hat;</span>
+
+<span class="s2">    for (i in 1:N) {</span>
+<span class="s2">        // calculate log likelihood and posterior predictive, there are</span>
+<span class="s2">        // no restrictions on adding more generated quantities</span>
+<span class="s2">        log_lik[i] = normal_lpdf(y[i] | b0 + b1 * x[i], sigma_e);</span>
+<span class="s2">        y_hat[i] = normal_rng(b0 + b1 * x[i], sigma_e);</span>
+<span class="s2">    }</span>
+<span class="s2">    for (j in 1:N_ex) {</span>
+<span class="s2">        // calculate the log likelihood of the exluded data given data_for_fitting</span>
+<span class="s2">        log_lik_ex[j] = normal_lpdf(y_ex[j] | b0 + b1 * x_ex[j], sigma_e);</span>
+<span class="s2">    }</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sm</span> <span class="o">=</span> <span class="n">pystan</span><span class="o">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">refit_lr_code</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_4275bea8cf61cb4b45f01fa01c73d194 NOW.
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ydata</span><span class="p">),</span>
+    <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">ydata</span><span class="p">,</span>
+    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xdata</span><span class="p">,</span>
+    <span class="c1"># No excluded data in initial fit</span>
+    <span class="s2">&quot;N_ex&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;x_ex&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;y_ex&quot;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="p">}</span>
+<span class="n">sample_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iter&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;chains&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">sample_kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We have defined a dictionary <code class="docutils literal notranslate"><span class="pre">sample_kwargs</span></code> that will be passed to the <code class="docutils literal notranslate"><span class="pre">SamplingWrapper</span></code> in order to make sure that all refits use the same sampler parameters. We follow the same pattern with <code class="docutils literal notranslate"><span class="pre">az.from_pystan</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">dims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="s2">&quot;y_hat&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]}</span>
+<span class="n">idata_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;posterior_predictive&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;y_hat&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;observed_data&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;constant_data&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;log_lik&quot;</span><span class="p">,</span> <span class="s2">&quot;log_lik_ex&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;dims&quot;</span><span class="p">:</span> <span class="n">dims</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">idata</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span><span class="n">posterior</span><span class="o">=</span><span class="n">fit</span><span class="p">,</span> <span class="o">**</span><span class="n">idata_kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We will create a subclass of <code class="docutils literal notranslate"><span class="pre">az.PyStanSamplingWrapper</span></code>. Therefore, instead of having to implement all functions required by <code class="docutils literal notranslate"><span class="pre">az.reloo</span></code> we only have to implement <code class="docutils literal notranslate"><span class="pre">sel_observations</span></code>. As explained in its docs, it takes one argument which are the indices of the data to be excluded and returns <code class="docutils literal notranslate"><span class="pre">modified_observed_data</span></code> which is passed as <code class="docutils literal notranslate"><span class="pre">data</span></code> to <code class="docutils literal notranslate"><span class="pre">sampling</span></code> function of PyStan model and <code class="docutils literal notranslate"><span class="pre">excluded_observed_data</span></code> which is used to retrieve the log likelihood of the excluded data (as
+passing the excluded data would make no sense).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">class</span> <span class="nc">LinearRegressionWrapper</span><span class="p">(</span><span class="n">az</span><span class="o">.</span><span class="n">PyStanSamplingWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">sel_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">xdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idata_orig</span><span class="o">.</span><span class="n">constant_data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">ydata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idata_orig</span><span class="o">.</span><span class="n">observed_data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">N_obs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">N_ex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="n">N_obs</span> <span class="o">-</span> <span class="n">N_ex</span><span class="p">,</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xdata</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">ydata</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
+            <span class="s2">&quot;N_ex&quot;</span><span class="p">:</span> <span class="n">N_ex</span><span class="p">,</span>
+            <span class="s2">&quot;x_ex&quot;</span><span class="p">:</span> <span class="n">xdata</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span>
+            <span class="s2">&quot;y_ex&quot;</span><span class="p">:</span> <span class="n">ydata</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">observations</span><span class="p">,</span> <span class="s2">&quot;log_lik_ex&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">loo_orig</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">loo_orig</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computed from 2000 by 100 log-likelihood matrix
+
+         Estimate       SE
+elpd_loo  -250.66     7.17
+p_loo        2.85        -
+------
+
+Pareto k diagnostic values:
+                         Count   Pct.
+(-Inf, 0.5]   (good)      100  100.0%
+ (0.5, 0.7]   (ok)          0    0.0%
+   (0.7, 1]   (bad)         0    0.0%
+   (1, Inf)   (very bad)    0    0.0%
+
+
+The scale is now log by default. Use &#39;scale&#39; argument or &#39;stats.ic_scale&#39; rcParam if
+you rely on a specific value.
+A higher log-score (or a lower deviance) indicates a model with better predictive
+accuracy.
+</pre></div></div>
+</div>
+<p>In this case, the Leave-One-Out Cross Validation (LOO-CV) approximation using Pareto Smoothed Importance Sampling (PSIS) works for all observations, so we will use modify <code class="docutils literal notranslate"><span class="pre">loo_orig</span></code> in order to make <code class="docutils literal notranslate"><span class="pre">az.reloo</span></code> believe that PSIS failed for some observations. This will also serve as a validation of our wrapper, as the PSIS LOO-CV already returned the correct value.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">loo_orig</span><span class="o">.</span><span class="n">pareto_k</span><span class="p">[[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">73</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">2.6</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>We initialize our sampling wrapper</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pystan_wrapper</span> <span class="o">=</span> <span class="n">LinearRegressionWrapper</span><span class="p">(</span>
+    <span class="n">sm</span><span class="p">,</span> <span class="n">idata_orig</span><span class="o">=</span><span class="n">idata</span><span class="p">,</span> <span class="n">sample_kwargs</span><span class="o">=</span><span class="n">sample_kwargs</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="n">idata_kwargs</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And eventually, we can use this wrapper to call <code class="docutils literal notranslate"><span class="pre">az.reloo</span></code>, and compare the results with the PSIS LOO-CV results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">loo_relooed</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">reloo</span><span class="p">(</span><span class="n">pystan_wrapper</span><span class="p">,</span> <span class="n">loo_orig</span><span class="o">=</span><span class="n">loo_orig</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/percy/anaconda3/envs/arviz/lib/python3.6/site-packages/arviz/stats/stats_refitting.py:98: UserWarning: reloo is an experimental and untested feature
+  warnings.warn(&#34;reloo is an experimental and untested feature&#34;, UserWarning)
+arviz.stats.stats_refitting - INFO - Refitting model excluding observation 13
+INFO:arviz.stats.stats_refitting:Refitting model excluding observation 13
+arviz.stats.stats_refitting - INFO - Refitting model excluding observation 42
+INFO:arviz.stats.stats_refitting:Refitting model excluding observation 42
+arviz.stats.stats_refitting - INFO - Refitting model excluding observation 56
+INFO:arviz.stats.stats_refitting:Refitting model excluding observation 56
+arviz.stats.stats_refitting - INFO - Refitting model excluding observation 73
+INFO:arviz.stats.stats_refitting:Refitting model excluding observation 73
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">loo_relooed</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computed from 2000 by 100 log-likelihood matrix
+
+         Estimate       SE
+elpd_loo  -250.67     7.17
+p_loo        2.86        -
+------
+
+Pareto k diagnostic values:
+                         Count   Pct.
+(-Inf, 0.5]   (good)      100  100.0%
+ (0.5, 0.7]   (ok)          0    0.0%
+   (0.7, 1]   (bad)         0    0.0%
+   (1, Inf)   (very bad)    0    0.0%
+
+
+The scale is now log by default. Use &#39;scale&#39; argument or &#39;stats.ic_scale&#39; rcParam if
+you rely on a specific value.
+A higher log-score (or a lower deviance) indicates a model with better predictive
+accuracy.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">loo_orig</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computed from 2000 by 100 log-likelihood matrix
+
+         Estimate       SE
+elpd_loo  -250.66     7.17
+p_loo        2.85        -
+------
+
+Pareto k diagnostic values:
+                         Count   Pct.
+(-Inf, 0.5]   (good)       96   96.0%
+ (0.5, 0.7]   (ok)          0    0.0%
+   (0.7, 1]   (bad)         2    2.0%
+   (1, Inf)   (very bad)    2    2.0%
+
+
+The scale is now log by default. Use &#39;scale&#39; argument or &#39;stats.ic_scale&#39; rcParam if
+you rely on a specific value.
+A higher log-score (or a lower deviance) indicates a model with better predictive
+accuracy.
+</pre></div></div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/notebooks/pystan_refitting.ipynb.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

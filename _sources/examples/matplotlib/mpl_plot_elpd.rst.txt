@@ -1,0 +1,17 @@
+
+.. _mpl_plot_elpd:
+
+
+ELPD Plot
+=========
+
+
+
+.. image:: _images/mpl_plot_elpd.png
+
+**Python source code:** :download:`[download source: mpl_plot_elpd.py]<mpl_plot_elpd.py>`
+
+**API documentation:** `plot_elpd <../../generated/arviz.plot_elpd>`_
+
+.. literalinclude:: mpl_plot_elpd.py
+    :lines: 7-

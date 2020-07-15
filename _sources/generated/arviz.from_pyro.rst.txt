@@ -1,0 +1,6 @@
+arviz.from\_pyro
+================
+
+.. currentmodule:: arviz
+
+.. autofunction:: from_pyro

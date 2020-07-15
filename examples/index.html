@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example gallery &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Autocorrelation Plot" href="matplotlib/mpl_plot_autocorr.html" />
+    <link rel="prev" title="ArviZ Quickstart" href="../notebooks/Introduction.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="#">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <style type="text/css">
+.figure {
+    position: relative;
+    float: left;
+    margin: 10px;
+    width: 180px;
+    height: 200px;
+}
+
+.figure img {
+    position: absolute;
+    display: inline;
+    left: 0;
+    width: 170px;
+    height: 170px;
+    opacity:1.0;
+    filter:alpha(opacity=100); /* For IE8 and earlier */
+}
+
+.figure:hover img {
+    -webkit-filter: blur(3px);
+    -moz-filter: blur(3px);
+    -o-filter: blur(3px);
+    -ms-filter: blur(3px);
+    filter: blur(3px);
+    opacity:1.0;
+    filter:alpha(opacity=100); /* For IE8 and earlier */
+}
+
+.figure span {
+    position: absolute;
+    display: inline;
+    left: 0;
+    width: 170px;
+    height: 170px;
+    background: #000;
+    color: #fff;
+    visibility: hidden;
+    opacity: 0;
+    z-index: 100;
+}
+
+.figure p {
+    position: absolute;
+    top: 45%;
+    width: 170px;
+    font-size: 110%;
+}
+
+.figure:hover span {
+    visibility: visible;
+    opacity: .4;
+}
+
+.caption {
+    position: absolue;
+    width: 180px;
+    top: 170px;
+    text-align: center !important;
+}
+</style><div class="section" id="example-gallery">
+<span id="id1"></span><h1>Example gallery<a class="headerlink" href="#example-gallery" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="matplotlib">
+<h2>Matplotlib<a class="headerlink" href="#matplotlib" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_autocorr.html>
+<img src=../_static/mpl_plot_autocorr_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_autocorr</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_bpv.html>
+<img src=../_static/mpl_plot_bpv_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_bpv</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_bpv_tstat.html>
+<img src=../_static/mpl_plot_bpv_tstat_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_bpv_tstat</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_compare.html>
+<img src=../_static/mpl_plot_compare_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_compare</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_density.html>
+<img src=../_static/mpl_plot_density_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_density</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_dist.html>
+<img src=../_static/mpl_plot_dist_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_dist</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_elpd.html>
+<img src=../_static/mpl_plot_elpd_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_elpd</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_energy.html>
+<img src=../_static/mpl_plot_energy_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_energy</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_ess_evolution.html>
+<img src=../_static/mpl_plot_ess_evolution_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_ess_evolution</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_ess_local.html>
+<img src=../_static/mpl_plot_ess_local_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_ess_local</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_ess_quantile.html>
+<img src=../_static/mpl_plot_ess_quantile_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_ess_quantile</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_forest.html>
+<img src=../_static/mpl_plot_forest_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_forest</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_forest_ridge.html>
+<img src=../_static/mpl_plot_forest_ridge_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_forest_ridge</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_hdi.html>
+<img src=../_static/mpl_plot_hdi_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_hdi</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_joint.html>
+<img src=../_static/mpl_plot_joint_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_joint</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_kde.html>
+<img src=../_static/mpl_plot_kde_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_kde</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_kde_2d.html>
+<img src=../_static/mpl_plot_kde_2d_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_kde_2d</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_kde_2d_bis.html>
+<img src=../_static/mpl_plot_kde_2d_bis_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_kde_2d_bis</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_kde_quantiles.html>
+<img src=../_static/mpl_plot_kde_quantiles_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_kde_quantiles</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_khat.html>
+<img src=../_static/mpl_plot_khat_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_khat</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_loo_pit_ecdf.html>
+<img src=../_static/mpl_plot_loo_pit_ecdf_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_loo_pit_ecdf</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_loo_pit_overlay.html>
+<img src=../_static/mpl_plot_loo_pit_overlay_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_loo_pit_overlay</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_mcse.html>
+<img src=../_static/mpl_plot_mcse_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_mcse</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_mcse_errorbar.html>
+<img src=../_static/mpl_plot_mcse_errorbar_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_mcse_errorbar</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_pair.html>
+<img src=../_static/mpl_plot_pair_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_pair</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_pair_hex.html>
+<img src=../_static/mpl_plot_pair_hex_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_pair_hex</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_pair_kde.html>
+<img src=../_static/mpl_plot_pair_kde_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_pair_kde</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_pair_point_estimate.html>
+<img src=../_static/mpl_plot_pair_point_estimate_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_pair_point_estimate</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_parallel.html>
+<img src=../_static/mpl_plot_parallel_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_parallel</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_posterior.html>
+<img src=../_static/mpl_plot_posterior_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_posterior</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_ppc.html>
+<img src=../_static/mpl_plot_ppc_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_ppc</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_ppc_cumulative.html>
+<img src=../_static/mpl_plot_ppc_cumulative_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_ppc_cumulative</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_rank.html>
+<img src=../_static/mpl_plot_rank_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_rank</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_trace.html>
+<img src=../_static/mpl_plot_trace_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_trace</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_trace_bars.html>
+<img src=../_static/mpl_plot_trace_bars_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_trace_bars</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_trace_vlines.html>
+<img src=../_static/mpl_plot_trace_vlines_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_trace_vlines</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_plot_violin.html>
+<img src=../_static/mpl_plot_violin_thumb.png>
+<span class='figure-label'>
+<p>mpl_plot_violin</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./matplotlib/mpl_styles.html>
+<img src=../_static/mpl_styles_thumb.png>
+<span class='figure-label'>
+<p>mpl_styles</p>
+</span>
+</a>
+</div><div style="clear: both"></div></div>
+<div class="section" id="bokeh">
+<h2>Bokeh<a class="headerlink" href="#bokeh" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_autocorr.html>
+<img src=../_static/bokeh_plot_autocorr_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_autocorr</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_bpv.html>
+<img src=../_static/bokeh_plot_bpv_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_bpv</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_bpv_tstat.html>
+<img src=../_static/bokeh_plot_bpv_tstat_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_bpv_tstat</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_compare.html>
+<img src=../_static/bokeh_plot_compare_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_compare</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_density.html>
+<img src=../_static/bokeh_plot_density_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_density</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_dist.html>
+<img src=../_static/bokeh_plot_dist_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_dist</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_elpd.html>
+<img src=../_static/bokeh_plot_elpd_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_elpd</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_energy.html>
+<img src=../_static/bokeh_plot_energy_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_energy</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_ess_evolution.html>
+<img src=../_static/bokeh_plot_ess_evolution_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_ess_evolution</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_ess_local.html>
+<img src=../_static/bokeh_plot_ess_local_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_ess_local</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_ess_quantile.html>
+<img src=../_static/bokeh_plot_ess_quantile_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_ess_quantile</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_forest.html>
+<img src=../_static/bokeh_plot_forest_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_forest</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_forest_ridge.html>
+<img src=../_static/bokeh_plot_forest_ridge_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_forest_ridge</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_hdi.html>
+<img src=../_static/bokeh_plot_hdi_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_hdi</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_joint.html>
+<img src=../_static/bokeh_plot_joint_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_joint</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_kde.html>
+<img src=../_static/bokeh_plot_kde_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_kde</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_kde_2d.html>
+<img src=../_static/bokeh_plot_kde_2d_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_kde_2d</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_kde_quantiles.html>
+<img src=../_static/bokeh_plot_kde_quantiles_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_kde_quantiles</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_khat.html>
+<img src=../_static/bokeh_plot_khat_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_khat</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_loo_pit_ecdf.html>
+<img src=../_static/bokeh_plot_loo_pit_ecdf_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_loo_pit_ecdf</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_loo_pit_overlay.html>
+<img src=../_static/bokeh_plot_loo_pit_overlay_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_loo_pit_overlay</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_mcse.html>
+<img src=../_static/bokeh_plot_mcse_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_mcse</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_mcse_errorbar.html>
+<img src=../_static/bokeh_plot_mcse_errorbar_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_mcse_errorbar</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_pair.html>
+<img src=../_static/bokeh_plot_pair_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_pair</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_pair_hex.html>
+<img src=../_static/bokeh_plot_pair_hex_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_pair_hex</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_pair_kde.html>
+<img src=../_static/bokeh_plot_pair_kde_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_pair_kde</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_pair_point_estimate.html>
+<img src=../_static/bokeh_plot_pair_point_estimate_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_pair_point_estimate</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_parallel.html>
+<img src=../_static/bokeh_plot_parallel_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_parallel</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_posterior.html>
+<img src=../_static/bokeh_plot_posterior_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_posterior</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_ppc.html>
+<img src=../_static/bokeh_plot_ppc_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_ppc</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_ppc_cumulative.html>
+<img src=../_static/bokeh_plot_ppc_cumulative_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_ppc_cumulative</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_rank.html>
+<img src=../_static/bokeh_plot_rank_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_rank</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_trace.html>
+<img src=../_static/bokeh_plot_trace_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_trace</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_trace_bars.html>
+<img src=../_static/bokeh_plot_trace_bars_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_trace_bars</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_trace_vlines.html>
+<img src=../_static/bokeh_plot_trace_vlines_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_trace_vlines</p>
+</span>
+</a>
+</div><div class='figure align-center'>
+<a href=./bokeh/bokeh_plot_violin.html>
+<img src=../_static/bokeh_plot_violin_thumb.png>
+<span class='figure-label'>
+<p>bokeh_plot_violin</p>
+</span>
+</a>
+</div><div style="clear: both"></div></div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/examples/index.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

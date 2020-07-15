@@ -1,0 +1,17 @@
+
+.. _mpl_plot_trace_vlines:
+
+
+Traceplot rank_vlines
+=====================
+
+
+
+.. image:: _images/mpl_plot_trace_vlines.png
+
+**Python source code:** :download:`[download source: mpl_plot_trace_vlines.py]<mpl_plot_trace_vlines.py>`
+
+**API documentation:** `plot_trace <../../generated/arviz.plot_trace>`_
+
+.. literalinclude:: mpl_plot_trace_vlines.py
+    :lines: 7-

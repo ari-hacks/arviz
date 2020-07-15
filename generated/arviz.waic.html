@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.waic &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="arviz.bfmi" href="arviz.bfmi.html" />
+    <link rel="prev" title="arviz.summary" href="arviz.summary.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-waic">
+<h1>arviz.waic<a class="headerlink" href="#arviz-waic" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="arviz.waic">
+<code class="sig-prename descclassname">arviz.</code><code class="sig-name descname">waic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">pointwise</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">var_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/arviz/stats/stats.html#waic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#arviz.waic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the widely applicable information criterion.</p>
+<p>Estimates the expected log pointwise predictive density (elpd) using WAIC. Also calculates the
+WAIC’s standard error and the effective number of parameters.
+Read more theory here <a class="reference external" href="https://arxiv.org/abs/1507.04544">https://arxiv.org/abs/1507.04544</a> and here <a class="reference external" href="https://arxiv.org/abs/1004.2316">https://arxiv.org/abs/1004.2316</a></p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>data: obj</strong></dt><dd><p>Any object that can be converted to an az.InferenceData object. Refer to documentation of
+<code class="docutils literal notranslate"><span class="pre">az.convert_to_inference_data</span></code> for details</p>
+</dd>
+<dt><strong>pointwise: bool</strong></dt><dd><p>If True the pointwise predictive accuracy will be returned. Defaults to
+<code class="docutils literal notranslate"><span class="pre">stats.ic_pointwise</span></code> rcParam.</p>
+</dd>
+<dt><strong>var_name</strong><span class="classifier">str, optional</span></dt><dd><p>The name of the variable in log_likelihood groups storing the pointwise log
+likelihood data to use for waic computation.</p>
+</dd>
+<dt><strong>scale: str</strong></dt><dd><p>Output scale for WAIC. Available options are:</p>
+<ul class="simple">
+<li><p><cite>log</cite> : (default) log-score</p></li>
+<li><p><cite>negative_log</cite> : -1 * log-score</p></li>
+<li><p><cite>deviance</cite> : -2 * log-score</p></li>
+</ul>
+<p>A higher log-score (or a lower deviance or negative log_score) indicates a model with
+better predictive accuracy.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>ELPDData object (inherits from panda.Series) with the following row/attributes:</dt><dd></dd>
+<dt>waic: approximated expected log pointwise predictive density (elpd)</dt><dd></dd>
+<dt>waic_se: standard error of waic</dt><dd></dd>
+<dt>p_waic: effective number parameters</dt><dd></dd>
+<dt>var_warn: bool</dt><dd><p>True if posterior variance of the log predictive densities exceeds 0.4</p>
+</dd>
+<dt>waic_i: xarray.DataArray with the pointwise predictive accuracy, only if pointwise=True</dt><dd></dd>
+<dt>waic_scale: scale of the reported waic results</dt><dd><p>The returned object has a custom print method that overrides pd.Series method.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Calculate WAIC of a model:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="gp">   ...: </span><span class="n">data</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">load_arviz_data</span><span class="p">(</span><span class="s2">&quot;centered_eight&quot;</span><span class="p">)</span>
+<span class="gp">   ...: </span><span class="n">az</span><span class="o">.</span><span class="n">waic</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">   ...: </span>
+<span class="gh">Out[1]: </span><span class="go"></span>
+<span class="go">Computed from 2000 by 8 log-likelihood matrix</span>
+
+<span class="go">          Estimate       SE</span>
+<span class="go">elpd_waic   -30.76     1.42</span>
+<span class="go">p_waic        0.90        -</span>
+
+<span class="go">The scale is now log by default. Use &#39;scale&#39; argument or &#39;stats.ic_scale&#39; rcParam if</span>
+<span class="go">you rely on a specific value.</span>
+<span class="go">A higher log-score (or a lower deviance) indicates a model with better predictive</span>
+<span class="go">accuracy.</span>
+</pre></div>
+</div>
+<p>Calculate WAIC of a model and return the pointwise values:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [2]: </span><span class="n">data_waic</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">waic</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">   ...: </span><span class="n">data_waic</span><span class="o">.</span><span class="n">waic_i</span>
+<span class="gp">   ...: </span>
+<span class="gh">Out[2]: </span><span class="go"></span>
+<span class="go">&lt;xarray.DataArray &#39;waic_i&#39; (school: 8)&gt;</span>
+<span class="go">array([-4.91534201, -3.41568055, -3.85543363, -3.46533901, -3.40121364,</span>
+<span class="go">       -3.4765078 , -4.27523419, -3.95322615])</span>
+<span class="go">Coordinates:</span>
+<span class="go">  * school   (school) object &#39;Choate&#39; &#39;Deerfield&#39; ... &quot;St. Paul&#39;s&quot; &#39;Mt. Hermon&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/generated/arviz.waic.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

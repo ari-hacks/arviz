@@ -1,0 +1,17 @@
+
+.. _mpl_plot_trace_bars:
+
+
+Traceplot rank_bars
+===================
+
+
+
+.. image:: _images/mpl_plot_trace_bars.png
+
+**Python source code:** :download:`[download source: mpl_plot_trace_bars.py]<mpl_plot_trace_bars.py>`
+
+**API documentation:** `plot_trace <../../generated/arviz.plot_trace>`_
+
+.. literalinclude:: mpl_plot_trace_bars.py
+    :lines: 7-

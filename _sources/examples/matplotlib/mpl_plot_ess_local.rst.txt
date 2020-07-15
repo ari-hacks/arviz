@@ -1,0 +1,17 @@
+
+.. _mpl_plot_ess_local:
+
+
+ESS Local Plot
+==============
+
+
+
+.. image:: _images/mpl_plot_ess_local.png
+
+**Python source code:** :download:`[download source: mpl_plot_ess_local.py]<mpl_plot_ess_local.py>`
+
+**API documentation:** `plot_ess <../../generated/arviz.plot_ess>`_
+
+.. literalinclude:: mpl_plot_ess_local.py
+    :lines: 7-

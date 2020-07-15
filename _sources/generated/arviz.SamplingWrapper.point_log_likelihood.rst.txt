@@ -1,0 +1,6 @@
+arviz.SamplingWrapper.point\_log\_likelihood
+============================================
+
+.. currentmodule:: arviz
+
+.. automethod:: SamplingWrapper.point_log_likelihood

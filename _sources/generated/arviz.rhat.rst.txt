@@ -1,0 +1,6 @@
+arviz.rhat
+==========
+
+.. currentmodule:: arviz
+
+.. autofunction:: rhat

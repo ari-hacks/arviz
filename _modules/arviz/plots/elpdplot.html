@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.plots.elpdplot &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.plots.elpdplot</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Plot pointwise elpd estimations of inference data.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
+<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
+
+<span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">convert_to_inference_data</span>
+<span class="kn">from</span> <span class="nn">.plot_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">format_coords_as_labels</span><span class="p">,</span>
+    <span class="n">color_from_dim</span><span class="p">,</span>
+    <span class="n">get_plotting_function</span><span class="p">,</span>
+    <span class="n">matplotlib_kwarg_dealiaser</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..stats</span> <span class="kn">import</span> <span class="n">waic</span><span class="p">,</span> <span class="n">loo</span><span class="p">,</span> <span class="n">ELPDData</span>
+<span class="kn">from</span> <span class="nn">..rcparams</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">get_coords</span>
+
+
+<div class="viewcode-block" id="plot_elpd"><a class="viewcode-back" href="../../../generated/arviz.plot_elpd.html#arviz.plot_elpd">[docs]</a><span class="k">def</span> <span class="nf">plot_elpd</span><span class="p">(</span>
+    <span class="n">compare_dict</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">xlabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">textsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">plot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot pointwise elpd differences between two or more models.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    compare_dict : mapping, str -&gt; ELPDData or InferenceData</span>
+<span class="sd">        A dictionary mapping the model name to the object containing inference data or the result</span>
+<span class="sd">        of `loo`/`waic` functions.</span>
+<span class="sd">        Refer to az.convert_to_inference_data for details on possible dict items</span>
+<span class="sd">    color : str or array_like, optional</span>
+<span class="sd">        Colors of the scatter plot, if color is a str all dots will have the same color,</span>
+<span class="sd">        if it is the size of the observations, each dot will have the specified color,</span>
+<span class="sd">        otherwise, it will be interpreted as a list of the dims to be used for the color code</span>
+<span class="sd">    xlabels : bool, optional</span>
+<span class="sd">        Use coords as xticklabels</span>
+<span class="sd">    figsize : figure size tuple, optional</span>
+<span class="sd">        If None, size is (8 + numvars, 8 + numvars)</span>
+<span class="sd">    textsize: int, optional</span>
+<span class="sd">        Text size for labels. If None it will be autoscaled based on figsize.</span>
+<span class="sd">    coords : mapping, optional</span>
+<span class="sd">        Coordinates of points to plot. **All** values are used for computation, but only a</span>
+<span class="sd">        a subset can be plotted for convenience.</span>
+<span class="sd">    legend : bool, optional</span>
+<span class="sd">        Include a legend to the plot. Only taken into account when color argument is a dim name.</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">        If some elpd difference is larger than `threshold * elpd.std()`, show its label. If</span>
+<span class="sd">        `None`, no observations will be highlighted.</span>
+<span class="sd">    ic : str, optional</span>
+<span class="sd">        Information Criterion (PSIS-LOO `loo`, WAIC `waic`) used to compare models. Defaults to</span>
+<span class="sd">        ``rcParams[&quot;stats.information_criterion&quot;]``.</span>
+<span class="sd">        Only taken into account when input is InferenceData.</span>
+<span class="sd">    scale : str, optional</span>
+<span class="sd">        scale argument passed to az.loo or az.waic, see their docs for details. Only taken</span>
+<span class="sd">        into account when input is InferenceData.</span>
+<span class="sd">    plot_kwargs : dicts, optional</span>
+<span class="sd">        Additional keywords passed to ax.scatter</span>
+<span class="sd">    ax: axes, optional</span>
+<span class="sd">        Matplotlib axes or bokeh figures.</span>
+<span class="sd">    backend: str, optional</span>
+<span class="sd">        Select plotting backend {&quot;matplotlib&quot;,&quot;bokeh&quot;}. Default &quot;matplotlib&quot;.</span>
+<span class="sd">    backend_kwargs: bool, optional</span>
+<span class="sd">        These are kwargs specific to the backend being used. For additional documentation</span>
+<span class="sd">        check the plotting method of the backend.</span>
+<span class="sd">    show : bool, optional</span>
+<span class="sd">        Call backend show function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    axes : matplotlib axes or bokeh figures</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Compare pointwise PSIS-LOO for centered and non centered models of the 8-schools problem</span>
+<span class="sd">    using matplotlib.</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; import arviz as az</span>
+<span class="sd">        &gt;&gt;&gt; idata1 = az.load_arviz_data(&quot;centered_eight&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; idata2 = az.load_arviz_data(&quot;non_centered_eight&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; az.plot_elpd(</span>
+<span class="sd">        &gt;&gt;&gt;     {&quot;centered model&quot;: idata1, &quot;non centered model&quot;: idata2},</span>
+<span class="sd">        &gt;&gt;&gt;     xlabels=True</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+
+<span class="sd">    .. bokeh-plot::</span>
+<span class="sd">        :source-position: above</span>
+
+<span class="sd">        import arviz as az</span>
+<span class="sd">        idata1 = az.load_arviz_data(&quot;centered_eight&quot;)</span>
+<span class="sd">        idata2 = az.load_arviz_data(&quot;non_centered_eight&quot;)</span>
+<span class="sd">        az.plot_elpd(</span>
+<span class="sd">            {&quot;centered model&quot;: idata1, &quot;non centered model&quot;: idata2},</span>
+<span class="sd">            backend=&quot;bokeh&quot;</span>
+<span class="sd">        )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">valid_ics</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;loo&quot;</span><span class="p">,</span> <span class="s2">&quot;waic&quot;</span><span class="p">]</span>
+    <span class="n">ic</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;stats.information_criterion&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">ic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ic</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;stats.ic_scale&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">scale</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_ics</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;Information Criteria type </span><span class="si">{}</span><span class="s2"> not recognized.&quot;</span> <span class="s2">&quot;IC must be in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">ic</span><span class="p">,</span> <span class="n">valid_ics</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">ic_fun</span> <span class="o">=</span> <span class="n">loo</span> <span class="k">if</span> <span class="n">ic</span> <span class="o">==</span> <span class="s2">&quot;loo&quot;</span> <span class="k">else</span> <span class="n">waic</span>
+    <span class="n">handles</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Make sure all object are ELPDData</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">compare_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">ELPDData</span><span class="p">):</span>
+            <span class="n">compare_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">ic_fun</span><span class="p">(</span><span class="n">convert_to_inference_data</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+    <span class="n">ics</span> <span class="o">=</span> <span class="p">[</span><span class="n">elpd_data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">elpd_data</span> <span class="ow">in</span> <span class="n">compare_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">ics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ics</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
+            <span class="s2">&quot;All Information Criteria must be of the same kind, but both loo and waic data present&quot;</span>
+        <span class="p">)</span>
+    <span class="n">ic</span> <span class="o">=</span> <span class="n">ics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">scales</span> <span class="o">=</span> <span class="p">[</span><span class="n">elpd_data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_scale&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ic</span><span class="p">)]</span> <span class="k">for</span> <span class="n">elpd_data</span> <span class="ow">in</span> <span class="n">compare_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">scales</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">scales</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
+            <span class="s2">&quot;All Information Criteria must be on the same scale, but </span><span class="si">{}</span><span class="s2"> are present&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">set</span><span class="p">(</span><span class="n">scales</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.backend&quot;</span><span class="p">]</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="n">numvars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">compare_dict</span><span class="p">)</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">compare_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">matplotlib_kwarg_dealiaser</span><span class="p">(</span><span class="n">plot_kwargs</span><span class="p">,</span> <span class="s2">&quot;scatter&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">:</span>
+        <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;marker&quot;</span><span class="p">,</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.bokeh.marker&quot;</span><span class="p">])</span>
+
+    <span class="n">pointwise_data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">get_coords</span><span class="p">(</span><span class="n">compare_dict</span><span class="p">[</span><span class="n">model</span><span class="p">][</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_i&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ic</span><span class="p">)],</span> <span class="n">coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span>
+    <span class="p">]</span>
+    <span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pointwise_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">coord_labels</span> <span class="o">=</span> <span class="n">format_coords_as_labels</span><span class="p">(</span><span class="n">pointwise_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">xlabels</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="n">markersize</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">pointwise_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="n">colors</span><span class="p">,</span> <span class="n">color_mapping</span> <span class="o">=</span> <span class="n">color_from_dim</span><span class="p">(</span><span class="n">pointwise_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">legend</span> <span class="ow">and</span> <span class="n">backend</span> <span class="o">!=</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">:</span>
+                <span class="n">cmap_name</span> <span class="o">=</span> <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;image.cmap&quot;</span><span class="p">])</span>
+                <span class="n">markersize</span> <span class="o">=</span> <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;lines.markersize&quot;</span><span class="p">])</span>
+                <span class="n">cmap</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">cmap_name</span><span class="p">)</span>
+                <span class="n">handles</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">Line2D</span><span class="p">(</span>
+                        <span class="p">[],</span>
+                        <span class="p">[],</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">float_color</span><span class="p">),</span>
+                        <span class="n">label</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span>
+                        <span class="n">ms</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
+                        <span class="n">lw</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">plot_kwargs</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">coord</span><span class="p">,</span> <span class="n">float_color</span> <span class="ow">in</span> <span class="n">color_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="p">]</span>
+                <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="n">cmap_name</span><span class="p">)</span>
+                <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">colors</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+            <span class="n">legend</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">numvars</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Number of models to compare must be 2 or greater.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># flatten data (data must be flattened after selecting, labeling and coloring)</span>
+    <span class="n">pointwise_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">pointwise</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">pointwise</span> <span class="ow">in</span> <span class="n">pointwise_data</span><span class="p">]</span>
+
+    <span class="n">elpd_plot_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span>
+        <span class="n">pointwise_data</span><span class="o">=</span><span class="n">pointwise_data</span><span class="p">,</span>
+        <span class="n">numvars</span><span class="o">=</span><span class="n">numvars</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+        <span class="n">textsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">,</span>
+        <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">,</span>
+        <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
+        <span class="n">xlabels</span><span class="o">=</span><span class="n">xlabels</span><span class="p">,</span>
+        <span class="n">coord_labels</span><span class="o">=</span><span class="n">coord_labels</span><span class="p">,</span>
+        <span class="n">xdata</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+        <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span>
+        <span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="n">backend_kwargs</span><span class="o">=</span><span class="n">backend_kwargs</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">:</span>
+        <span class="n">elpd_plot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;legend&quot;</span><span class="p">)</span>
+        <span class="n">elpd_plot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;handles&quot;</span><span class="p">)</span>
+        <span class="n">elpd_plot_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Add backend kwargs</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">get_plotting_function</span><span class="p">(</span><span class="s2">&quot;plot_elpd&quot;</span><span class="p">,</span> <span class="s2">&quot;elpdplot&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">elpd_plot_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

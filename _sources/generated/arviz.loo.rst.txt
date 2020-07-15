@@ -1,0 +1,6 @@
+arviz.loo
+=========
+
+.. currentmodule:: arviz
+
+.. autofunction:: loo

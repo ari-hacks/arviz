@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.PyStanSamplingWrapper &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="arviz.PyStanSamplingWrapper.__init__" href="arviz.PyStanSamplingWrapper.__init__.html" />
+    <link rel="prev" title="arviz.SamplingWrapper.sel_observations" href="arviz.SamplingWrapper.sel_observations.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-pystansamplingwrapper">
+<h1>arviz.PyStanSamplingWrapper<a class="headerlink" href="#arviz-pystansamplingwrapper" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="arviz.PyStanSamplingWrapper">
+<em class="property">class </em><code class="sig-prename descclassname">arviz.</code><code class="sig-name descname">PyStanSamplingWrapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">idata_orig</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_like_fun</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sample_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">idata_kwargs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/arviz/wrappers/wrap_pystan.html#PyStanSamplingWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#arviz.PyStanSamplingWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyStan sampling wrapper base class.</p>
+<p>See the documentation on  <a class="reference internal" href="arviz.SamplingWrapper.html#arviz.SamplingWrapper" title="arviz.SamplingWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplingWrapper</span></code></a> for a more detailed
+description. An example of <code class="docutils literal notranslate"><span class="pre">PyStanSamplingWrapper</span></code> usage can be found
+in the <a class="reference internal" href="../notebooks/pystan_refitting.html"><span class="doc">pystan_refitting</span></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Sampling wrappers are an experimental feature in a very early stage. Please use them
+with caution.</p>
+</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="arviz.PyStanSamplingWrapper.__init__.html#arviz.PyStanSamplingWrapper.__init__" title="arviz.PyStanSamplingWrapper.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PyStanSamplingWrapper.__init__</span></code></a>(model[, …])</p></td>
+<td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="arviz.PyStanSamplingWrapper.check_implemented_methods.html#arviz.PyStanSamplingWrapper.check_implemented_methods" title="arviz.PyStanSamplingWrapper.check_implemented_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PyStanSamplingWrapper.check_implemented_methods</span></code></a>(methods)</p></td>
+<td><p>Check that all methods listed are implemented.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="arviz.PyStanSamplingWrapper.get_inference_data.html#arviz.PyStanSamplingWrapper.get_inference_data" title="arviz.PyStanSamplingWrapper.get_inference_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PyStanSamplingWrapper.get_inference_data</span></code></a>(fit)</p></td>
+<td><p>Convert the fit object returned by <code class="docutils literal notranslate"><span class="pre">self.sample</span></code> to InferenceData.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="arviz.PyStanSamplingWrapper.log_likelihood__i.html#arviz.PyStanSamplingWrapper.log_likelihood__i" title="arviz.PyStanSamplingWrapper.log_likelihood__i"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PyStanSamplingWrapper.log_likelihood__i</span></code></a>(…)</p></td>
+<td><p>Retrieve the log likelihood of the excluded observations from <code class="docutils literal notranslate"><span class="pre">idata__i</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="arviz.PyStanSamplingWrapper.point_log_likelihood.html#arviz.PyStanSamplingWrapper.point_log_likelihood" title="arviz.PyStanSamplingWrapper.point_log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PyStanSamplingWrapper.point_log_likelihood</span></code></a>(…)</p></td>
+<td><p>Pointwise log likelihood function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="arviz.PyStanSamplingWrapper.sample.html#arviz.PyStanSamplingWrapper.sample" title="arviz.PyStanSamplingWrapper.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PyStanSamplingWrapper.sample</span></code></a>(…)</p></td>
+<td><p>Resample the PyStan model stored in self.model on modified_observed_data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="arviz.PyStanSamplingWrapper.sel_observations.html#arviz.PyStanSamplingWrapper.sel_observations" title="arviz.PyStanSamplingWrapper.sel_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PyStanSamplingWrapper.sel_observations</span></code></a>(idx)</p></td>
+<td><p>Select a subset of the observations in idata_orig.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/generated/arviz.PyStanSamplingWrapper.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

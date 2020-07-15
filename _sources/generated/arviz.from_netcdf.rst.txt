@@ -1,0 +1,6 @@
+arviz.from\_netcdf
+==================
+
+.. currentmodule:: arviz
+
+.. autofunction:: from_netcdf

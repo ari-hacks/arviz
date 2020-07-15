@@ -1,0 +1,17 @@
+
+.. _mpl_plot_forest:
+
+
+Forest Plot
+===========
+
+
+
+.. image:: _images/mpl_plot_forest.png
+
+**Python source code:** :download:`[download source: mpl_plot_forest.py]<mpl_plot_forest.py>`
+
+**API documentation:** `plot_forest <../../generated/arviz.plot_forest>`_
+
+.. literalinclude:: mpl_plot_forest.py
+    :lines: 7-

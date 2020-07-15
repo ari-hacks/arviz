@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.plots.densityplot &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples/index.html">Gallery</a></li>
+                <li><a href="../../../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../../../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../../../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../../../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../../../api.html">API</a></li>
+                <li><a href="../../../usage.html">Usage</a></li>
+                <li><a href="../../../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../../../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for arviz.plots.densityplot</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;KDE and histogram plots for multiple variables.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">cycle</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">..data</span> <span class="kn">import</span> <span class="n">convert_to_dataset</span>
+<span class="kn">from</span> <span class="nn">.plot_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_scale_fig_size</span><span class="p">,</span>
+    <span class="n">make_label</span><span class="p">,</span>
+    <span class="n">xarray_var_iter</span><span class="p">,</span>
+    <span class="n">default_grid</span><span class="p">,</span>
+    <span class="n">get_plotting_function</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..rcparams</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_var_names</span><span class="p">,</span> <span class="n">credible_interval_warning</span>
+
+
+<span class="c1"># pylint:disable-msg=too-many-function-args</span>
+<div class="viewcode-block" id="plot_density"><a class="viewcode-back" href="../../../generated/arviz.plot_density.html#arviz.plot_density">[docs]</a><span class="k">def</span> <span class="nf">plot_density</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior&quot;</span><span class="p">,</span>
+    <span class="n">data_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">hdi_prob</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">point_estimate</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;cycle&quot;</span><span class="p">,</span>
+    <span class="n">outline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">hdi_markers</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">shade</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">bw</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">textsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">backend_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">credible_interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate KDE plots for continuous variables and histograms for discrete ones.</span>
+
+<span class="sd">    Plots are truncated at their 100*(1-alpha)% highest density intervals. Plots are grouped per</span>
+<span class="sd">    variable and colors assigned to models.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : Union[Object, Iterator[Object]]</span>
+<span class="sd">        Any object that can be converted to an az.InferenceData object, or an Iterator returning</span>
+<span class="sd">        a sequence of such objects.</span>
+<span class="sd">        Refer to documentation of az.convert_to_dataset for details about such objects.</span>
+<span class="sd">    group: Optional[str]</span>
+<span class="sd">        Specifies which InferenceData group should be plotted.  Defaults to &#39;posterior&#39;.</span>
+<span class="sd">        Alternative values include &#39;prior&#39; and any other strings used as dataset keys in the</span>
+<span class="sd">        InferenceData.</span>
+<span class="sd">    data_labels : Optional[List[str]]</span>
+<span class="sd">        List with names for the datasets passed as &quot;data.&quot; Useful when plotting more than one</span>
+<span class="sd">        dataset.  Must be the same shape as the data parameter.  Defaults to None.</span>
+<span class="sd">    var_names: Optional[List[str]]</span>
+<span class="sd">        List of variables to plot.  If multiple datasets are supplied and var_names is not None,</span>
+<span class="sd">        will print the same set of variables for each dataset.  Defaults to None, which results in</span>
+<span class="sd">        all the variables being plotted.</span>
+<span class="sd">    transform : callable</span>
+<span class="sd">        Function to transform data (defaults to None i.e. the identity function)</span>
+<span class="sd">    hdi_prob : float</span>
+<span class="sd">        Probability for the highest density interval. Should be in the interval (0, 1].</span>
+<span class="sd">        Defaults to 0.94.</span>
+<span class="sd">    point_estimate : Optional[str]</span>
+<span class="sd">        Plot point estimate per variable. Values should be &#39;mean&#39;, &#39;median&#39;, &#39;mode&#39; or None.</span>
+<span class="sd">        Defaults to &#39;auto&#39; i.e. it falls back to default set in rcParams.</span>
+<span class="sd">    colors : Optional[Union[List[str],str]]</span>
+<span class="sd">        List with valid matplotlib colors, one color per model. Alternative a string can be passed.</span>
+<span class="sd">        If the string is `cycle`, it will automatically choose a color per model from matplotlib&#39;s</span>
+<span class="sd">        cycle. If a single color is passed, e.g. &#39;k&#39;, &#39;C2&#39; or &#39;red&#39; this color will be used for all</span>
+<span class="sd">        models. Defaults to `cycle`.</span>
+<span class="sd">    outline : bool</span>
+<span class="sd">        Use a line to draw KDEs and histograms. Default to True</span>
+<span class="sd">    hdi_markers : str</span>
+<span class="sd">        A valid `matplotlib.markers` like &#39;v&#39;, used to indicate the limits of the highest density</span>
+<span class="sd">        interval. Defaults to empty string (no marker).</span>
+<span class="sd">    shade : Optional[float]</span>
+<span class="sd">        Alpha blending value for the shaded area under the curve, between 0 (no shade) and 1</span>
+<span class="sd">        (opaque). Defaults to 0.</span>
+<span class="sd">    bw : Optional[float]</span>
+<span class="sd">        Bandwidth scaling factor for the KDE. Should be larger than 0. The higher this number the</span>
+<span class="sd">        smoother the KDE will be. Defaults to 4.5 which is essentially the same as the Scott&#39;s rule</span>
+<span class="sd">        of thumb (the default rule used by SciPy).</span>
+<span class="sd">    figsize : Optional[Tuple[int, int]]</span>
+<span class="sd">        Figure size. If None it will be defined automatically.</span>
+<span class="sd">    textsize: Optional[float]</span>
+<span class="sd">        Text size scaling factor for labels, titles and lines. If None it will be autoscaled based</span>
+<span class="sd">        on figsize.</span>
+<span class="sd">    ax: numpy array-like of matplotlib axes or bokeh figures, optional</span>
+<span class="sd">        A 2D array of locations into which to plot the densities. If not supplied, Arviz will create</span>
+<span class="sd">        its own array of plot areas (and return it).</span>
+<span class="sd">    backend: str, optional</span>
+<span class="sd">        Select plotting backend {&quot;matplotlib&quot;,&quot;bokeh&quot;}. Default &quot;matplotlib&quot;.</span>
+<span class="sd">    backend_kwargs: bool, optional</span>
+<span class="sd">        These are kwargs specific to the backend being used. For additional documentation</span>
+<span class="sd">        check the plotting method of the backend.</span>
+<span class="sd">    show : bool, optional</span>
+<span class="sd">        Call backend show function.</span>
+<span class="sd">    credible_interval: float, optional</span>
+<span class="sd">        deprecated: Please see hdi_prob</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    axes : matplotlib axes or bokeh figures</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Plot default density plot</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; import arviz as az</span>
+<span class="sd">        &gt;&gt;&gt; centered = az.load_arviz_data(&#39;centered_eight&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; non_centered = az.load_arviz_data(&#39;non_centered_eight&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; az.plot_density([centered, non_centered])</span>
+
+<span class="sd">    Plot subset variables by specifying variable name exactly</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_density([centered, non_centered], var_names=[&quot;mu&quot;])</span>
+
+<span class="sd">    Plot a specific `az.InferenceData` group</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_density([centered, non_centered], var_names=[&quot;mu&quot;], group=&quot;prior&quot;)</span>
+
+<span class="sd">    Specify highest density interval</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_density([centered, non_centered], var_names=[&quot;mu&quot;], hdi_prob=.5)</span>
+
+<span class="sd">    Shade plots and/or remove outlines</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_density([centered, non_centered], var_names=[&quot;mu&quot;], outline=False, shade=.8)</span>
+
+<span class="sd">    Specify binwidth for kernel density estimation</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        &gt;&gt;&gt; az.plot_density([centered, non_centered], var_names=[&quot;mu&quot;], bw=.9)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">credible_interval</span><span class="p">:</span>
+        <span class="n">hdi_prob</span> <span class="o">=</span> <span class="n">credible_interval_warning</span><span class="p">(</span><span class="n">credible_interval</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert_to_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert_to_dataset</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">)</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+
+    <span class="n">var_names</span> <span class="o">=</span> <span class="n">_var_names</span><span class="p">(</span><span class="n">var_names</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span>
+    <span class="n">n_data</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n_data</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">data_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_data</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_labels</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_data</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The number of names for the models (</span><span class="si">{}</span><span class="s2">) &quot;</span>
+            <span class="s2">&quot;does not match the number of models (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_labels</span><span class="p">),</span> <span class="n">n_data</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">colors</span> <span class="o">==</span> <span class="s2">&quot;cycle&quot;</span><span class="p">:</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">prop</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span><span class="n">n_data</span><span class="p">),</span> <span class="n">cycle</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.prop_cycle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">by_key</span><span class="p">()[</span><span class="s2">&quot;color&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">colors</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_data</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">hdi_prob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hdi_prob</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;stats.hdi_prob&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="n">hdi_prob</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The value of hdi_prob should be in the interval (0, 1]&quot;</span><span class="p">)</span>
+
+    <span class="n">to_plot</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">xarray_var_iter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_names</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+    <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">length_plotters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">plotters</span> <span class="ow">in</span> <span class="n">to_plot</span><span class="p">:</span>
+        <span class="n">length_plotters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plotters</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">plotters</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">make_label</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">selection</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_labels</span><span class="p">:</span>
+                <span class="n">all_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">length_plotters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_labels</span><span class="p">)</span>
+    <span class="n">max_plots</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.max_subplots&quot;</span><span class="p">]</span>
+    <span class="n">max_plots</span> <span class="o">=</span> <span class="n">length_plotters</span> <span class="k">if</span> <span class="n">max_plots</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">max_plots</span>
+    <span class="k">if</span> <span class="n">length_plotters</span> <span class="o">&gt;</span> <span class="n">max_plots</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;rcParams[&#39;plot.max_subplots&#39;] (</span><span class="si">{max_plots}</span><span class="s2">) is smaller than the number &quot;</span>
+            <span class="s2">&quot;of variables to plot (</span><span class="si">{len_plotters}</span><span class="s2">) in plot_density, generating only &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{max_plots}</span><span class="s2"> plots&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_plots</span><span class="o">=</span><span class="n">max_plots</span><span class="p">,</span> <span class="n">len_plotters</span><span class="o">=</span><span class="n">length_plotters</span><span class="p">),</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="n">all_labels</span><span class="p">[:</span><span class="n">max_plots</span><span class="p">]</span>
+        <span class="n">to_plot</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">plotters</span>
+                <span class="k">if</span> <span class="n">make_label</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">selection</span><span class="p">)</span> <span class="ow">in</span> <span class="n">all_labels</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">plotters</span> <span class="ow">in</span> <span class="n">to_plot</span>
+        <span class="p">]</span>
+        <span class="n">length_plotters</span> <span class="o">=</span> <span class="n">max_plots</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">default_grid</span><span class="p">(</span><span class="n">length_plotters</span><span class="p">,</span> <span class="n">max_cols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="n">figsize</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">titlesize</span><span class="p">,</span> <span class="n">xt_labelsize</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">,</span> <span class="n">markersize</span><span class="p">)</span> <span class="o">=</span> <span class="n">_scale_fig_size</span><span class="p">(</span>
+        <span class="n">figsize</span><span class="p">,</span> <span class="n">textsize</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span>
+    <span class="p">)</span>
+
+    <span class="n">plot_density_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">all_labels</span><span class="o">=</span><span class="n">all_labels</span><span class="p">,</span>
+        <span class="n">to_plot</span><span class="o">=</span><span class="n">to_plot</span><span class="p">,</span>
+        <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
+        <span class="n">bw</span><span class="o">=</span><span class="n">bw</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+        <span class="n">length_plotters</span><span class="o">=</span><span class="n">length_plotters</span><span class="p">,</span>
+        <span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span>
+        <span class="n">cols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span>
+        <span class="n">titlesize</span><span class="o">=</span><span class="n">titlesize</span><span class="p">,</span>
+        <span class="n">xt_labelsize</span><span class="o">=</span><span class="n">xt_labelsize</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+        <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
+        <span class="n">hdi_prob</span><span class="o">=</span><span class="n">hdi_prob</span><span class="p">,</span>
+        <span class="n">point_estimate</span><span class="o">=</span><span class="n">point_estimate</span><span class="p">,</span>
+        <span class="n">hdi_markers</span><span class="o">=</span><span class="n">hdi_markers</span><span class="p">,</span>
+        <span class="n">outline</span><span class="o">=</span><span class="n">outline</span><span class="p">,</span>
+        <span class="n">shade</span><span class="o">=</span><span class="n">shade</span><span class="p">,</span>
+        <span class="n">n_data</span><span class="o">=</span><span class="n">n_data</span><span class="p">,</span>
+        <span class="n">data_labels</span><span class="o">=</span><span class="n">data_labels</span><span class="p">,</span>
+        <span class="n">backend_kwargs</span><span class="o">=</span><span class="n">backend_kwargs</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.backend&quot;</span><span class="p">]</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;bokeh&quot;</span><span class="p">:</span>
+
+        <span class="n">plot_density_kwargs</span><span class="p">[</span><span class="s2">&quot;line_width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_density_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;linewidth&quot;</span><span class="p">)</span>
+        <span class="n">plot_density_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;titlesize&quot;</span><span class="p">)</span>
+        <span class="n">plot_density_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;xt_labelsize&quot;</span><span class="p">)</span>
+        <span class="n">plot_density_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;n_data&quot;</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Add backend kwargs</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">get_plotting_function</span><span class="p">(</span><span class="s2">&quot;plot_density&quot;</span><span class="p">,</span> <span class="s2">&quot;densityplot&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">plot_density_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

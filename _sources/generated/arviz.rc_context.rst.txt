@@ -1,0 +1,21 @@
+arviz.rc\_context
+=================
+
+.. currentmodule:: arviz
+
+.. autoclass:: rc_context
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      
+   
+   
+
+   
+   
+   

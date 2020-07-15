@@ -1,0 +1,6 @@
+arviz.from\_numpyro
+===================
+
+.. currentmodule:: arviz
+
+.. autofunction:: from_numpyro

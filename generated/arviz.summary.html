@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arviz.summary &#8212; ArviZ dev documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="arviz.waic" href="arviz.waic.html" />
+    <link rel="prev" title="arviz.r2_score" href="arviz.r2_score.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>dev</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../examples/index.html">Gallery</a></li>
+                <li><a href="../notebooks/Introduction.html">Quickstart</a></li>
+                <li><a href="../notebooks/InferenceDataCookbook.html">Cookbook</a></li>
+                <li><a href="../notebooks/XarrayforArviZ.html">InferenceData</a></li>
+                <li><a href="../notebooks/Numba.html">Numba</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../usage.html">Usage</a></li>
+                <li><a href="../about.html">About</a></li>
+            
+            
+              
+              
+            
+            
+            
+                <a class="icon" href="https://github.com/arviz-devs/arviz">
+                    <img src="../_static/GitHub-Mark-32px.png"
+                    style="position: absolute; top: 15px; right: 30px; border: 0;"></a>
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="arviz-summary">
+<h1>arviz.summary<a class="headerlink" href="#arviz-summary" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="arviz.summary">
+<code class="sig-prename descclassname">arviz.</code><code class="sig-name descname">summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">var_names</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_vars</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'wide'</span></em>, <em class="sig-param"><span class="n">kind</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'all'</span></em>, <em class="sig-param"><span class="n">round_to</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">include_circ</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stat_funcs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">extend</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">hdi_prob</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">order</span><span class="o">=</span><span class="default_value">'C'</span></em>, <em class="sig-param"><span class="n">index_origin</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">skipna</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">coords</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>List<span class="p">[</span>Any<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dims</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">credible_interval</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>xarray.core.dataset.Dataset<span class="p">]</span><a class="reference internal" href="../_modules/arviz/stats/stats.html#summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#arviz.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a data frame with summary statistics.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>data: obj</strong></dt><dd><p>Any object that can be converted to an az.InferenceData object
+Refer to documentation of az.convert_to_dataset for details</p>
+</dd>
+<dt><strong>var_names: list</strong></dt><dd><p>Names of variables to include in summary. Prefix the variables by <cite>~</cite> when you
+want to exclude them from the summary: <cite>[“~beta”]</cite> instead of <cite>[“beta”]</cite> (see
+examples below).</p>
+</dd>
+<dt><strong>filter_vars: {None, “like”, “regex”}, optional, default=None</strong></dt><dd><p>If <cite>None</cite> (default), interpret var_names as the real variables names. If “like”,
+interpret var_names as substrings of the real variables names. If “regex”,
+interpret var_names as regular expressions on the real variables names. A la
+<cite>pandas.filter</cite>.</p>
+</dd>
+<dt><strong>fmt: {‘wide’, ‘long’, ‘xarray’}</strong></dt><dd><p>Return format is either pandas.DataFrame {‘wide’, ‘long’} or xarray.Dataset {‘xarray’}.</p>
+</dd>
+<dt><strong>kind: {‘all’, ‘stats’, ‘diagnostics’}</strong></dt><dd><p>Whether to include the <cite>stats</cite>: <cite>mean</cite>, <cite>sd</cite>, <cite>hdi_3%</cite>, <cite>hdi_97%</cite>, or the <cite>diagnostics</cite>:
+<cite>mcse_mean</cite>, <cite>mcse_sd</cite>, <cite>ess_bulk</cite>, <cite>ess_tail</cite>, and <cite>r_hat</cite>. Default to include <cite>all</cite> of
+them.</p>
+</dd>
+<dt><strong>round_to: int</strong></dt><dd><p>Number of decimals used to round results. Defaults to 2. Use “none” to return raw numbers.</p>
+</dd>
+<dt><strong>include_circ: bool</strong></dt><dd><p>Whether to include circular statistics</p>
+</dd>
+<dt><strong>stat_funcs: dict</strong></dt><dd><p>A list of functions or a dict of functions with function names as keys used to calculate
+statistics. By default, the mean, standard deviation, simulation standard error, and
+highest posterior density intervals are included.</p>
+<p>The functions will be given one argument, the samples for a variable as an nD array,
+The functions should be in the style of a ufunc and return a single number. For example,
+<cite>np.mean</cite>, or <cite>scipy.stats.var</cite> would both work.</p>
+</dd>
+<dt><strong>extend: boolean</strong></dt><dd><p>If True, use the statistics returned by <code class="docutils literal notranslate"><span class="pre">stat_funcs</span></code> in addition to, rather than in place
+of, the default statistics. This is only meaningful when <code class="docutils literal notranslate"><span class="pre">stat_funcs</span></code> is not None.</p>
+</dd>
+<dt><strong>hdi_prob: float, optional</strong></dt><dd><p>HDI interval to compute. Defaults to 0.94. This is only meaningful when <code class="docutils literal notranslate"><span class="pre">stat_funcs</span></code> is
+None.</p>
+</dd>
+<dt><strong>order: {“C”, “F”}</strong></dt><dd><p>If fmt is “wide”, use either C or F unpacking order. Defaults to C.</p>
+</dd>
+<dt><strong>index_origin: int</strong></dt><dd><p>If fmt is “wide, select n-based indexing for multivariate parameters.
+Defaults to rcParam data.index.origin, which is 0.</p>
+</dd>
+<dt><strong>skipna: bool</strong></dt><dd><p>If true ignores nan values when computing the summary statistics, it does not affect the
+behaviour of the functions passed to <code class="docutils literal notranslate"><span class="pre">stat_funcs</span></code>. Defaults to false.</p>
+</dd>
+<dt><strong>coords: Dict[str, List[Any]], optional</strong></dt><dd><p>Coordinates specification to be used if the <code class="docutils literal notranslate"><span class="pre">fmt</span></code> is <code class="docutils literal notranslate"><span class="pre">'xarray'</span></code>.</p>
+</dd>
+<dt><strong>dims: Dict[str, List[str]], optional</strong></dt><dd><p>Dimensions specification for the variables to be used if the <code class="docutils literal notranslate"><span class="pre">fmt</span></code> is <code class="docutils literal notranslate"><span class="pre">'xarray'</span></code>.</p>
+</dd>
+<dt><strong>credible_interval: float, optional</strong></dt><dd><p>deprecated: Please see hdi_prob</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame or xarray.Dataset</dt><dd><p>Return type dicated by <cite>fmt</cite> argument.
+Return value will contain summary statistics for each variable. Default statistics are:
+<cite>mean</cite>, <cite>sd</cite>, <cite>hdi_3%</cite>, <cite>hdi_97%</cite>, <cite>mcse_mean</cite>, <cite>mcse_sd</cite>, <cite>ess_bulk</cite>, <cite>ess_tail</cite>, and
+<cite>r_hat</cite>.
+<cite>r_hat</cite> is only computed for traces with 2 or more chains.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="gp">   ...: </span><span class="n">data</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">load_arviz_data</span><span class="p">(</span><span class="s2">&quot;centered_eight&quot;</span><span class="p">)</span>
+<span class="gp">   ...: </span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">])</span>
+<span class="gp">   ...: </span>
+<span class="gh">Out[1]: </span><span class="go"></span>
+<span class="go">      mean     sd  hdi_3%  hdi_97%  ...  ess_sd  ess_bulk  ess_tail  r_hat</span>
+<span class="go">mu   4.093  3.372  -2.118   10.403  ...   246.0     251.0     643.0   1.03</span>
+<span class="go">tau  4.089  3.001   0.569    9.386  ...   142.0      79.0      54.0   1.07</span>
+
+<span class="go">[2 rows x 11 columns]</span>
+</pre></div>
+</div>
+<p>You can use <cite>filter_vars</cite> to select variables without having to specify all the exact
+names. Use <cite>filter_vars=”like”</cite> to select based on partial naming:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [2]: </span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;the&quot;</span><span class="p">],</span> <span class="n">filter_vars</span><span class="o">=</span><span class="s2">&quot;like&quot;</span><span class="p">)</span>
+<span class="gh">Out[2]: </span><span class="go"></span>
+<span class="go">           mean     sd  hdi_3%  hdi_97%  ...  ess_sd  ess_bulk  ess_tail  r_hat</span>
+<span class="go">theta[0]  6.026  5.782  -3.707   17.337  ...   394.0     349.0     743.0   1.02</span>
+<span class="go">theta[1]  4.724  4.736  -4.039   13.999  ...   557.0     472.0    1018.0   1.02</span>
+<span class="go">theta[2]  3.576  5.559  -6.779   13.838  ...   504.0     463.0     674.0   1.01</span>
+<span class="go">theta[3]  4.478  4.939  -5.528   13.392  ...   613.0     504.0     666.0   1.01</span>
+<span class="go">theta[4]  3.064  4.642  -5.972   11.547  ...   393.0     380.0     833.0   1.02</span>
+<span class="go">theta[5]  3.821  4.979  -5.507   13.232  ...   555.0     517.0    1104.0   1.02</span>
+<span class="go">theta[6]  6.250  5.436  -3.412   16.920  ...   527.0     403.0    1026.0   1.02</span>
+<span class="go">theta[7]  4.544  5.521  -5.665   15.266  ...   574.0     450.0    1084.0   1.01</span>
+
+<span class="go">[8 rows x 11 columns]</span>
+</pre></div>
+</div>
+<p>Use <cite>filter_vars=”regex”</cite> to select based on regular expressions, and prefix the variables
+you want to exclude by <cite>~</cite>. Here, we exclude from the summary all the variables
+starting with the letter t:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [3]: </span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;~^t&quot;</span><span class="p">],</span> <span class="n">filter_vars</span><span class="o">=</span><span class="s2">&quot;regex&quot;</span><span class="p">)</span>
+<span class="gh">Out[3]: </span><span class="go"></span>
+<span class="go">     mean     sd  hdi_3%  hdi_97%  ...  ess_sd  ess_bulk  ess_tail  r_hat</span>
+<span class="go">mu  4.093  3.372  -2.118   10.403  ...   246.0     251.0     643.0   1.03</span>
+
+<span class="go">[1 rows x 11 columns]</span>
+</pre></div>
+</div>
+<p>Other statistics can be calculated by passing a list of functions
+or a dictionary with key, function pairs.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [4]: </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">   ...: </span><span class="k">def</span> <span class="nf">median_sd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">   ...: </span>    <span class="n">median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="gp">   ...: </span>    <span class="n">sd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">median</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">   ...: </span>    <span class="k">return</span> <span class="n">sd</span>
+<span class="gp">   ...: </span>
+<span class="gp">   ...: </span><span class="n">func_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">   ...: </span>    <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">,</span>
+<span class="gp">   ...: </span>    <span class="s2">&quot;median_std&quot;</span><span class="p">:</span> <span class="n">median_sd</span><span class="p">,</span>
+<span class="gp">   ...: </span>    <span class="s2">&quot;5%&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="gp">   ...: </span>    <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+<span class="gp">   ...: </span>    <span class="s2">&quot;95%&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">95</span><span class="p">),</span>
+<span class="gp">   ...: </span><span class="p">}</span>
+<span class="gp">   ...: </span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span>
+<span class="gp">   ...: </span>    <span class="n">data</span><span class="p">,</span>
+<span class="gp">   ...: </span>    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">],</span>
+<span class="gp">   ...: </span>    <span class="n">stat_funcs</span><span class="o">=</span><span class="n">func_dict</span><span class="p">,</span>
+<span class="gp">   ...: </span>    <span class="n">extend</span><span class="o">=</span><span class="kc">False</span>
+<span class="gp">   ...: </span><span class="p">)</span>
+<span class="gp">   ...: </span>
+<span class="gh">Out[4]: </span><span class="go"></span>
+<span class="go">       std  median_std     5%  median    95%</span>
+<span class="go">mu   3.371       3.374 -1.312   3.961  9.640</span>
+<span class="go">tau  3.000       3.113  0.785   3.258  9.659</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/generated/arviz.summary.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, ArviZ devs.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

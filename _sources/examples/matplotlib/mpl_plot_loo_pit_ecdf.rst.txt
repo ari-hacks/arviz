@@ -1,0 +1,17 @@
+
+.. _mpl_plot_loo_pit_ecdf:
+
+
+LOO-PIT ECDF Plot
+=================
+
+
+
+.. image:: _images/mpl_plot_loo_pit_ecdf.png
+
+**Python source code:** :download:`[download source: mpl_plot_loo_pit_ecdf.py]<mpl_plot_loo_pit_ecdf.py>`
+
+**API documentation:** `plot_loo_pit <../../generated/arviz.plot_loo_pit>`_
+
+.. literalinclude:: mpl_plot_loo_pit_ecdf.py
+    :lines: 7-
